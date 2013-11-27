@@ -1,0 +1,11 @@
+{
+  "name": "PathwaysDisplayer",
+  "version": "0.4.3",
+  "dependencies": {
+    "jquery": "2.0.3",
+    "underscore": "1.4.2",
+    "backbone": "1.1.0",
+    "imjs": "2.10.6",
+    "q": "~0.9.7"
+  }
+}

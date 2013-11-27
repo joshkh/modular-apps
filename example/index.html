@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>component-400</title>
+    
+    <script src="app.bundle.js"></script>
+
+    <style>
+    #target { width: 700px; margin: 0 auto; }
+    </style>
+</head>
+<body>
+    <div id="target"></div>
+    <script>
+/*
+            require('MyFirstCommonJSApp')({
+                'target': '#target',
+                cb: function(err, selected) {
+                    if (err) throw err;
+                    console.log(selected);
+                },
+                portal: function(object, el) {
+                    console.log(arguments);
+                }
+            });*/
+
+            require('MyFirstCommonJSApp')({
+                
+                friendlyMines: {
+                    
+                    flyMine:    'www.flymine.org/release-38.0'
+                }
+            });
+
+    </script>
+</body>
+</html>
