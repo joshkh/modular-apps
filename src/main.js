@@ -3,8 +3,14 @@ var Helper = require('./modules/helper');
 
 module.exports = function(params) {
 
-	new AppView({
-		"friendlyMines": params.friendlyMines  
-	});
+	var view = new AppView(params);
+	if ($(params.target).length != 1) throw "Not found";
+	view.setElement($(params.target));
+	view.render();
+
+	//console.log(view.re);
+
+	//$(params.target).html(view.render().el);
+	
 
 }

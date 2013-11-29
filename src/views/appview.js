@@ -1,7 +1,9 @@
   // Include helper functions:
   var mediator = require("../modules/mediator");
   var Helper = require('../modules/helper');
-
+  var pwayCollection = require('../models/pathwaycollection');
+  var TableView = require("./tableview");
+  var Globals = require('../modules/globals');
 
 
   // The Application
@@ -12,38 +14,26 @@
     columns: [],
 
     // TODO: Move to external configuration
-    el: $("#pathwaysappcontainer"),
+    //el: "#pathwaysappcontainer",
 
     // Get the HTML template shell for our application
 
-    //*templateApp: _.template($('#tmplPwayApp').html()),
-    //*detailsTemplate: _.template($('#tmplPwayDetails').html()),
-
-    //dataPaneTemplate: _.template($('#tmplDataPane').html()),
+    //templateApp: _.template($('#tmplPwayApp').html()),
+    templateShell: require('../templates/shell'),
 
 
     initialize: function(params) {
 
+      console.log(JSON.stringify(params));
+
+     this.$el.html($(this.templateShell));
+     console.log("view el", this.el);
+     var innerDiv = this.$el.find(".pwayMain");
+
+
       friendlyMines = params.friendlyMines;
 
-      // Render the shell of our application
-      this.$el.html(this.templateApp);
-
-      // Let or application know that we're loading
-      this.$el.find(".pwayMain").html("Loading");
-      
-      var target = $('body');
-      var target = $('#loading');
-
-
-      var main = this.$el.find(".pwayMain");
-  
-      //$('body').append(this.$el);
-      //var spinner = new Spinner(opts).spin(target);
-       //var spinner = new Spinner(opts).spin(main);
-
-
-
+     mediator.on("test", this.test, this);
 
       // Listen to our mediator for events
       mediator.on('column:add', this.addColumn, this);
@@ -51,34 +41,35 @@
       mediator.on('table:show', this.showTable, this);
       mediator.on('stats:hide', this.hideStats, this);
 
-      //Q.when(Helper.getHomologues(['FBgn0005558'], friendlyMines.flyMine))
-      //.then(Helper.launchAll(friendlyMines.flyMine))
-      Q.when(Helper.launchAll(friendlyMines.flyMine))
-      .then (function(o) {
-        //App.showTable();
-        console.log("I have fnished", o);
-      });
+
+      Q.when(Helper.launchAll(friendlyMines.flymine))
+      .then(function(results) { return console.log(results) })
+      .then(function() { mediator.trigger('table:show', {});});
   
   
+    },
+
+    test: function() {
+        console.log("test function trigger");
+    },
+
+    render: function() {
+      var output = _.template(this.templateShell, {});
+      this.$el.html(output);
+      return this;
     },
 
     // Show our data table:
     showTable: function() {
 
+      console.log("showTable has been called");
       // Build our table view.
-      var tableView = new TableView({collection: pathwayCollection});
+      var atableView = new TableView({collection: pwayCollection});
+      console.log("showing table");
 
-      // Add the rendered view to our application
-      this.$el.find(".pwayMain").html(tableView.render().$el);
+      console.log("done rendering");
 
-      //this.$el.find(".pwayMain").append(this.dataPaneTemplate({}));
-
-
-      // Save for later use, this will hide our table
-      $("#fire").click(function() {
-        console.log("I have been fired.");
-        App.$el.find(".dataPane").toggleClass("active");
-      });
+       this.$(".pwayMain").append(atableView.render().el);
 
 
     },
@@ -96,7 +87,10 @@
         datasets: pway.aModel.get("dataSets")
       }
 
-      var detailsHtml = this.detailsTemplate({"pway": object});
+
+
+      var detailsTemplate = require('../templates/details');
+      var detailsHtml = _.template(detailsTemplate, {pway: object});
    
       this.$el.find(".dataPane").html(detailsHtml);
       this.$el.find(".dataPane").addClass("active");
@@ -107,16 +101,17 @@
 
     addColumn: function(colName) {
 
-      var index = _.where(this.columns, {taxonId: colName.taxonId});
+
+      var index = _.where(Globals.columns, {taxonId: colName.taxonId});
       if (index.length < 1) {
-        this.columns.push(colName);
-        this.columns.sort(dynamicSort("sName"));
+        Globals.columns.push(colName);
+        Globals.columns.sort(Helper.dynamicSort("sName"));
       }
     },
 
     hideStats: function() {
       console.log("hiding stats");
-       App.$el.find(".dataPane").removeClass("active");
+       this.$(".dataPane").removeClass("active");
     }
 
   });

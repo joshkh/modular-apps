@@ -9,9 +9,13 @@
     <style>
     #target { width: 700px; margin: 0 auto; }
     </style>
+    <link rel="stylesheet" type="text/css" href="default.css">
+
 </head>
 <body>
-    <div id="target"></div>
+    <div id="pathwaysappcontainer"></div>
+    
+    <script src="app.bundle.js"></script>
     <script>
 /*
             require('MyFirstCommonJSApp')({
@@ -25,12 +29,16 @@
                 }
             });*/
 
-            require('MyFirstCommonJSApp')({
-                
-                friendlyMines: {
+        
+            require('MyFirstCommonJSApp')(
+            {
+                    friendlyMines: {
+                        metabolicMine:  'www.metabolicmine.org/beta',
+                        flyMine:    'www.flymine.org/release-38.0'
+                    },
+                    target: "#pathwaysappcontainer"
                     
-                    flyMine:    'www.flymine.org/release-38.0'
-                }
+
             });
 
     </script>

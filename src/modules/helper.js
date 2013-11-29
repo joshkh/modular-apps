@@ -1,9 +1,13 @@
+var pwayCollection = require('../models/pathwaycollection.js');
+
+
  var launchAll = function(url) {
 
 
+  //console.log("launchAll has been called");
 
     /** Return a promise **/
-    return function (genes) {
+    //return function (genes) {
 
       /// Array to store our pathway
       var promiseArray = [];
@@ -11,59 +15,100 @@
       // Step through or mines
       for (mine in friendlyMines) {
 
-        // Push our function to the promise array
-        Q.when(getHomologues(['FBgn0005558'], friendlyMines[mine]))
-        .then(console.log("finished", genes.length))
-        .then(promiseArray.push(getPathwaysByGene(friendlyMines[mine], genes, pathwayCollection)));
-        console.log("pushing to url", mine);
+
+        promiseArray.push(runOne("FBgn0005558", friendlyMines[mine]));
+
       }
 
       // Return when all results have finished.
+
       return Q.all(promiseArray);
 
-    }
+    //}
+  }
+
+  var runOne = function(gene, location) {
+
+        return Q.when(getHomologues([gene], location))
+        .then(function(returned) {
+          return getPathwaysByGene(location, returned, "collection");
+        });
   }
 
   // :: (string, string) -> (Array<Gene>) -> Promise<Array<Record>>
   var getPathwaysByGene = function(url, genes, pathwayCollection) { 
+
+    //return function(o) {
     
-    var query, printRecords, getService, getData, error, fin, luString;
+     // console.log("o", o);
 
-    // Build a lookup string from our array of genes:
-    luString = genes.map(function(gene) {return "\"" + gene.primaryIdentifier + "\""}).join(',');
+      var query, printRecords, getService, getData, error, fin, luString;
 
-    // Build our query using our lookup string.
-    query = {"select":["Pathway.genes.primaryIdentifier","Pathway.id","Pathway.dataSets.name","Pathway.name","Pathway.identifier","Pathway.genes.organism.shortName","Pathway.genes.organism.taxonId"],"orderBy":[{"Pathway.name":"ASC"}],"where":{"Pathway.genes": {LOOKUP: luString}}};
 
-    // Build a query that gets us a list of gene for a given pathway
-   // geneQuery = {"select":["Pathway.genes.primaryIdentifier","Pathway.id","Pathway.name","Pathway.identifier","Pathway.genes.organism.shortName","Pathway.genes.organism.taxonId"],"orderBy":[{"Pathway.name":"ASC"}],"where":{"Pathway.genes": {LOOKUP: luString}}};
 
-    /** Return an IMJS service. **/
-    getService = function (aUrl) {
-      return new IM.Service({root: aUrl});
-    };
+      // Build a lookup string from our array of genes:
+      luString = genes.map(function(gene) {return "\"" + gene.primaryIdentifier + "\""}).join(',');
 
-    /** Return query results **/
-    getData = function (aService) {
-        return aService.records(query);
-    };
+      // Build our query using our lookup string.
+      query = {"select":["Pathway.genes.primaryIdentifier","Pathway.id","Pathway.dataSets.name","Pathway.name","Pathway.identifier","Pathway.genes.organism.shortName","Pathway.genes.organism.taxonId"],"orderBy":[{"Pathway.name":"ASC"}],"where":{"Pathway.genes": {LOOKUP: luString}}};
 
-    /** Manipulate our results and add them to our collection. **/
-    makeModels = function (pway) {
-      pway.url = url;
-      pathwayCollection.add(pway);
+      // Build a query that gets us a list of gene for a given pathway
+     // geneQuery = {"select":["Pathway.genes.primaryIdentifier","Pathway.id","Pathway.name","Pathway.identifier","Pathway.genes.organism.shortName","Pathway.genes.organism.taxonId"],"orderBy":[{"Pathway.name":"ASC"}],"where":{"Pathway.genes": {LOOKUP: luString}}};
 
-    } // End makeModels
+      /** Return an IMJS service. **/
+      getService = function (aUrl) {
+        //console.log("getService has been called");
+        return new IM.Service({root: aUrl});
+      };
 
-    // Return our error
-    error = function(err) {
-      return console.log('Error from getPathwaysByGene: ' + err);
-    };
+      /** Return query results **/
+      getData = function (aService) {
+          return aService.records(query);
+      };
 
-    // Wait for our results and then return them.
-    return Q(getService(url)).then(getData).then(makeModels).fail(error);
+      /** Manipulate our results and add them to our collection. **/
+      makeModels = function () {
 
-  } // End function getPathwaysByGene
+
+        return function(pways) {
+
+          _.map(pways, function(pathway) {
+            pathway.url = url;
+           
+          })
+
+           //console.log("PWAYs", pways);
+
+           pwayCollection.add(pways);
+
+          //pways.url = url;
+
+        //console.log("pwayc", pways);
+
+          return pways;
+
+        }
+
+
+        
+        //pathwayCollection.add(pway);
+        //console.log("pway: ", pway);
+        //return pway;
+
+
+      } // End makeModels
+
+      // Return our error
+      error = function(err) {
+        return console.log('Error from getPathwaysByGene: ' + err);
+      };
+
+      // Wait for our results and then return them.
+      return Q(getService(url)).then(getData).then(makeModels()).fail(error);
+
+    } // End function getPathwaysByGene
+
+ // }
 
   /**
   * Get a list of homologues for a given gene from a given mine.
@@ -81,8 +126,7 @@ var getHomologues = function(pIdentifier, url) {
 
     // Get our service.
     getService = function (aUrl) {
-      console.log("calling on ", aUrl, "with pId", pIdentifier);
-      console.log("")
+
       return new IM.Service({root: aUrl});
 
 
@@ -96,10 +140,10 @@ var getHomologues = function(pIdentifier, url) {
     // Deal with our results.
     returnResults = function () {
 
-      console.log("Returning results.");
+     // console.log("Returning results.");
       
       return function (orgs) {
-        console.log("Inside of orgs");
+
         // Return the homologue attribute of our results.
         var values = orgs.map(function(o) {
           return o.homologue
@@ -112,7 +156,10 @@ var getHomologues = function(pIdentifier, url) {
 
 
         luString = values.map(function(gene) {return gene.primaryIdentifier}).join(',');
-        console.log("luString" + luString);
+        _.each(values, function(gene) {
+           // console.log(gene.primaryIdentifier);
+        });
+       // console.log("luString" + luString);
 
         return values;
       }
@@ -130,5 +177,18 @@ var getHomologues = function(pIdentifier, url) {
      .fail(error);
   } // End getHomologues
 
+  function dynamicSort(property) {
+    var sortOrder = 1;
+    if(property[0] === "-") {
+        sortOrder = -1;
+        property = property.substr(1);
+    }
+    return function (a,b) {
+        var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+        return result * sortOrder;
+    }
+  }
+
 exports.getHomologues = getHomologues;
 exports.launchAll = launchAll;
+exports.dynamicSort = dynamicSort;

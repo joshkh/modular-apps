@@ -18069,53 +18069,192 @@ return Q;
       
       module.exports = function(params) {
       
-      	new AppView({
-      		"friendlyMines": params.friendlyMines  
-      	});
+      	var view = new AppView(params);
+      	if ($(params.target).length != 1) throw "Not found";
+      	view.setElement($(params.target));
+      	view.render();
+      
+      	//console.log(view.re);
+      
+      	//$(params.target).html(view.render().el);
+      	
       
       }
     });
 
     
-    // TestObject.js
-    require.register('MyFirstCommonJSApp/src/modules/TestObject.js', function(exports, require, module) {
+    // pathwaycollection.js
+    require.register('MyFirstCommonJSApp/src/models/pathwaycollection.js', function(exports, require, module) {
     
-      MainView = Backbone.Model.extend({
+      var PathwayModel = require('./pathwaymodel');
       
-          // Create a slug for our model.
-          initialize: function() {
-            this.on('change:name', this.slugify);
-            console.log("this is the initialization");
-          },
+        var PathwayCollection = Backbone.Collection.extend({
       
-          defaults: function() {
-            return{
-              "hits": [],
-              "name": "Generic Pathway",
-              "slug": "generic-pathway"
+          model: PathwayModel,
+      
+          add: function(models) {
+      
+      
+            if (!_.isArray(models)) {
+              models = [models];
             }
       
+            // Step through the models and look for a duplicates by slug.
+            _.each(models, function(model) {
+      
+            	//console.log("Next model: " + JSON.stringify(model, null, 2));
+      
+              //model.url = aUrl;
+      
+      
+              var returned = this.findWhere({slug: this.toSlug(model.name)});
+      
+      
+         
+      
+              if (returned) {
+              //console.log("found");
+                //returned.updateData(model); 
+                //console.log('returned, ' + model.url);      
+              } else {
+              	//console.log(model.name);
+                Backbone.Collection.prototype.add.call(this, model);
+              }
+      
+            },this);
           },
       
-          slugify: function() {
-            this.set({slug: toSlug(this.get('name')) });
-          }
+          comparator: function(pway) {
+              return pway.get('name');
+            },
+      
+         toSlug: function(text) {
+          return text.toString().toLowerCase().replace(/ /g,'-').replace(/[^\w-]+/g,'');
+        }
       
         });
       
-      module.exports = TestObject;
+      module.exports = new PathwayCollection();
+    });
+
+    
+    // pathwaymodel.js
+    require.register('MyFirstCommonJSApp/src/models/pathwaymodel.js', function(exports, require, module) {
+    
+      var mediator = require('../modules/mediator');
+      
+      var PathwayModel = Backbone.Model.extend({
+      
+          initialize: function() {
+            //console.log("pathway model created");
+            this.shiftPathwayIdentifier();
+            this.set( {slug: this.toSlug(this.get('name')) });
+            this.shiftData();
+          },
+      
+          defaults: function() {
+            return {organisms: []};
+          },
+      
+          toSlug: function(text) {
+            return text.toString().toLowerCase().replace(/ /g,'-').replace(/[^\w-]+/g,'');
+          },
+      
+          shiftPathwayIdentifier: function() {
+            var pwayId = this.get('identifier');
+            var pwayObjId = this.get('objectId');
+            _.each(this.attributes.genes, function(o) {
+              o.pwayId = pwayId;
+              o.pathwayId = pwayObjId;
+            });
+          },
+      
+          shiftData: function() {
+            currentOrganisms = this.get("organisms");
+      
+            that = this;
+            _.each(this.get('genes'), function(o) {
+      
+               mediator.trigger('column:add', {taxonId: o.organism.taxonId, sName: o.organism.shortName});
+      
+              var found = _.findWhere(currentOrganisms, {taxonId: o.organism.taxonId});
+              // Did we find the organism in the pathway by taxonId?
+              if (!found) {
+                // push ourself onto the organism as an attribute
+                var geneData = _.omit(o, 'organism');
+                _.extend(geneData, {url: that.attributes.url});
+                geneArray = [geneData]
+                o.organism.genes = geneArray;
+                currentOrganisms.push(o.organism);
+              } else {
+                var geneData = _.omit(o, 'organism');
+                _.extend(geneData, {url: that.attributes.url});
+                found.genes.push(geneData);
+              }
+      
+            });
+            this.set({organisms: currentOrganisms});
+            this.unset('genes');
+          },
+      
+          updateData: function(jsonData) {
+      
+            currentOrganisms = this.get("organisms");
+      
+            _.each(jsonData.genes, function(o) {
+      
+              mediator.trigger('column:add', {taxonId: o.organism.taxonId, sName: o.organism.shortName});
+      
+              var found = _.findWhere(currentOrganisms, {taxonId: o.organism.taxonId});
+              // Did we find the organism in the pathway by taxonId?
+              if (!found) {
+                // copy our gene data to the organism
+                var geneData = _.omit(o, 'organism');
+                _.extend(geneData, {url: jsonData.url, pathwayId: jsonData.objectId});
+                geneArray = [geneData]
+                o.organism.genes = geneArray;
+                currentOrganisms.push(o.organism);
+              } else {
+                var geneData = _.omit(o, 'organism');
+                _.extend(geneData, {url: jsonData.url});
+                found.genes.push(geneData);
+              }
+      
+            });
+            this.set({organisms: currentOrganisms});
+            this.unset('genes');
+      
+          },
+      
+        });
+      
+      module.exports = PathwayModel;
+      
+      
+    });
+
+    
+    // globals.js
+    require.register('MyFirstCommonJSApp/src/modules/globals.js', function(exports, require, module) {
+    
+      var columns = [];
+      exports.columns = columns;
     });
 
     
     // helper.js
     require.register('MyFirstCommonJSApp/src/modules/helper.js', function(exports, require, module) {
     
+      var pwayCollection = require('../models/pathwaycollection.js');
+      
+      
        var launchAll = function(url) {
       
       
+        //console.log("launchAll has been called");
       
           /** Return a promise **/
-          return function (genes) {
+          //return function (genes) {
       
             /// Array to store our pathway
             var promiseArray = [];
@@ -18123,59 +18262,100 @@ return Q;
             // Step through or mines
             for (mine in friendlyMines) {
       
-              // Push our function to the promise array
-              Q.when(getHomologues(['FBgn0005558'], friendlyMines[mine]))
-              .then(console.log("finished", genes.length))
-              .then(promiseArray.push(getPathwaysByGene(friendlyMines[mine], genes, pathwayCollection)));
-              console.log("pushing to url", mine);
+      
+              promiseArray.push(runOne("FBgn0005558", friendlyMines[mine]));
+      
             }
       
             // Return when all results have finished.
+      
             return Q.all(promiseArray);
       
-          }
+          //}
+        }
+      
+        var runOne = function(gene, location) {
+      
+              return Q.when(getHomologues([gene], location))
+              .then(function(returned) {
+                return getPathwaysByGene(location, returned, "collection");
+              });
         }
       
         // :: (string, string) -> (Array<Gene>) -> Promise<Array<Record>>
         var getPathwaysByGene = function(url, genes, pathwayCollection) { 
+      
+          //return function(o) {
           
-          var query, printRecords, getService, getData, error, fin, luString;
+           // console.log("o", o);
       
-          // Build a lookup string from our array of genes:
-          luString = genes.map(function(gene) {return "\"" + gene.primaryIdentifier + "\""}).join(',');
+            var query, printRecords, getService, getData, error, fin, luString;
       
-          // Build our query using our lookup string.
-          query = {"select":["Pathway.genes.primaryIdentifier","Pathway.id","Pathway.dataSets.name","Pathway.name","Pathway.identifier","Pathway.genes.organism.shortName","Pathway.genes.organism.taxonId"],"orderBy":[{"Pathway.name":"ASC"}],"where":{"Pathway.genes": {LOOKUP: luString}}};
       
-          // Build a query that gets us a list of gene for a given pathway
-         // geneQuery = {"select":["Pathway.genes.primaryIdentifier","Pathway.id","Pathway.name","Pathway.identifier","Pathway.genes.organism.shortName","Pathway.genes.organism.taxonId"],"orderBy":[{"Pathway.name":"ASC"}],"where":{"Pathway.genes": {LOOKUP: luString}}};
       
-          /** Return an IMJS service. **/
-          getService = function (aUrl) {
-            return new IM.Service({root: aUrl});
-          };
+            // Build a lookup string from our array of genes:
+            luString = genes.map(function(gene) {return "\"" + gene.primaryIdentifier + "\""}).join(',');
       
-          /** Return query results **/
-          getData = function (aService) {
-              return aService.records(query);
-          };
+            // Build our query using our lookup string.
+            query = {"select":["Pathway.genes.primaryIdentifier","Pathway.id","Pathway.dataSets.name","Pathway.name","Pathway.identifier","Pathway.genes.organism.shortName","Pathway.genes.organism.taxonId"],"orderBy":[{"Pathway.name":"ASC"}],"where":{"Pathway.genes": {LOOKUP: luString}}};
       
-          /** Manipulate our results and add them to our collection. **/
-          makeModels = function (pway) {
-            pway.url = url;
-            pathwayCollection.add(pway);
+            // Build a query that gets us a list of gene for a given pathway
+           // geneQuery = {"select":["Pathway.genes.primaryIdentifier","Pathway.id","Pathway.name","Pathway.identifier","Pathway.genes.organism.shortName","Pathway.genes.organism.taxonId"],"orderBy":[{"Pathway.name":"ASC"}],"where":{"Pathway.genes": {LOOKUP: luString}}};
       
-          } // End makeModels
+            /** Return an IMJS service. **/
+            getService = function (aUrl) {
+              //console.log("getService has been called");
+              return new IM.Service({root: aUrl});
+            };
       
-          // Return our error
-          error = function(err) {
-            return console.log('Error from getPathwaysByGene: ' + err);
-          };
+            /** Return query results **/
+            getData = function (aService) {
+                return aService.records(query);
+            };
       
-          // Wait for our results and then return them.
-          return Q(getService(url)).then(getData).then(makeModels).fail(error);
+            /** Manipulate our results and add them to our collection. **/
+            makeModels = function () {
       
-        } // End function getPathwaysByGene
+      
+              return function(pways) {
+      
+                _.map(pways, function(pathway) {
+                  pathway.url = url;
+                 
+                })
+      
+                 //console.log("PWAYs", pways);
+      
+                 pwayCollection.add(pways);
+      
+                //pways.url = url;
+      
+              //console.log("pwayc", pways);
+      
+                return pways;
+      
+              }
+      
+      
+              
+              //pathwayCollection.add(pway);
+              //console.log("pway: ", pway);
+              //return pway;
+      
+      
+            } // End makeModels
+      
+            // Return our error
+            error = function(err) {
+              return console.log('Error from getPathwaysByGene: ' + err);
+            };
+      
+            // Wait for our results and then return them.
+            return Q(getService(url)).then(getData).then(makeModels()).fail(error);
+      
+          } // End function getPathwaysByGene
+      
+       // }
       
         /**
         * Get a list of homologues for a given gene from a given mine.
@@ -18193,8 +18373,7 @@ return Q;
       
           // Get our service.
           getService = function (aUrl) {
-            console.log("calling on ", aUrl, "with pId", pIdentifier);
-            console.log("")
+      
             return new IM.Service({root: aUrl});
       
       
@@ -18208,10 +18387,10 @@ return Q;
           // Deal with our results.
           returnResults = function () {
       
-            console.log("Returning results.");
+           // console.log("Returning results.");
             
             return function (orgs) {
-              console.log("Inside of orgs");
+      
               // Return the homologue attribute of our results.
               var values = orgs.map(function(o) {
                 return o.homologue
@@ -18224,7 +18403,10 @@ return Q;
       
       
               luString = values.map(function(gene) {return gene.primaryIdentifier}).join(',');
-              console.log("luString" + luString);
+              _.each(values, function(gene) {
+                 // console.log(gene.primaryIdentifier);
+              });
+             // console.log("luString" + luString);
       
               return values;
             }
@@ -18242,8 +18424,21 @@ return Q;
            .fail(error);
         } // End getHomologues
       
+        function dynamicSort(property) {
+          var sortOrder = 1;
+          if(property[0] === "-") {
+              sortOrder = -1;
+              property = property.substr(1);
+          }
+          return function (a,b) {
+              var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+              return result * sortOrder;
+          }
+        }
+      
       exports.getHomologues = getHomologues;
       exports.launchAll = launchAll;
+      exports.dynamicSort = dynamicSort;
     });
 
     
@@ -18255,13 +18450,84 @@ return Q;
     });
 
     
+    // celltitle.js
+    require.register('MyFirstCommonJSApp/src/templates/celltitle.js', function(exports, require, module) {
+    
+      module.exports = '<%= name %>';
+    });
+
+    
+    // details.js
+    require.register('MyFirstCommonJSApp/src/templates/details.js', function(exports, require, module) {
+    
+      //module.exports = '<h2>test</h2>';
+      
+      module.exports = '<h2><%= pway.name %></h2> \
+      	<h2><%= pway.organism[0].shortName %></h2> \
+      	<h2>Intersection of Homologous Genes</h2> \
+      	<ul class="genes"> \
+      		<% _.each(pway.organism[0].genes, function(gene) { %> \
+      			<% console.log(gene) %> \
+      			<li> \
+      			<%= "<a href=http://" + gene.url + "/report.do?id=" + gene.objectId + ">" %> \
+      				<%= gene.primaryIdentifier %> \
+      			</a> \
+      			</li> \
+      		<% }) %> \
+      	</ul> \
+      	<h2>Data Set(s)</h2> \
+      	<ul> \
+      		<% _.each(pway.datasets, function(dataset) { %> \
+      			<li> \
+      				<%= dataset.name %> \
+      			</li> \
+      		<% }); %> \
+      	</ul>';
+    });
+
+    
+    // pathwaycell.js
+    require.register('MyFirstCommonJSApp/src/templates/pathwaycell.js', function(exports, require, module) {
+    
+      module.exports = '<div class="circle"></div>';
+    });
+
+    
+    // shell.js
+    require.register('MyFirstCommonJSApp/src/templates/shell.js', function(exports, require, module) {
+    
+      module.exports = '\
+      	<div class="pwayHeader">Cross-Species Pathway Displayer</div> \
+      	<div class="pwayWrapper"> \
+      		<div class="pwayMain"></div> \
+      		<div class="dataPane"></div> \
+      	</div>';
+    });
+
+    
+    // tableheaders.js
+    require.register('MyFirstCommonJSApp/src/templates/tableheaders.js', function(exports, require, module) {
+    
+      module.exports = '<thead>\
+      		<tr>\
+      		<th></th>\
+      	<% _.each(columns, function(col) { %>\
+      		<th><%= col.sName %></th>\
+      	<% }) %>\
+      	</tr>\
+      	</thead>';
+    });
+
+    
     // appview.js
     require.register('MyFirstCommonJSApp/src/views/appview.js', function(exports, require, module) {
     
         // Include helper functions:
         var mediator = require("../modules/mediator");
         var Helper = require('../modules/helper');
-      
+        var pwayCollection = require('../models/pathwaycollection');
+        var TableView = require("./tableview");
+        var Globals = require('../modules/globals');
       
       
         // The Application
@@ -18272,38 +18538,26 @@ return Q;
           columns: [],
       
           // TODO: Move to external configuration
-          el: $("#pathwaysappcontainer"),
+          //el: "#pathwaysappcontainer",
       
           // Get the HTML template shell for our application
       
-          //*templateApp: _.template($('#tmplPwayApp').html()),
-          //*detailsTemplate: _.template($('#tmplPwayDetails').html()),
-      
-          //dataPaneTemplate: _.template($('#tmplDataPane').html()),
+          //templateApp: _.template($('#tmplPwayApp').html()),
+          templateShell: require('../templates/shell'),
       
       
           initialize: function(params) {
       
+            console.log(JSON.stringify(params));
+      
+           this.$el.html($(this.templateShell));
+           console.log("view el", this.el);
+           var innerDiv = this.$el.find(".pwayMain");
+      
+      
             friendlyMines = params.friendlyMines;
       
-            // Render the shell of our application
-            this.$el.html(this.templateApp);
-      
-            // Let or application know that we're loading
-            this.$el.find(".pwayMain").html("Loading");
-            
-            var target = $('body');
-            var target = $('#loading');
-      
-      
-            var main = this.$el.find(".pwayMain");
-        
-            //$('body').append(this.$el);
-            //var spinner = new Spinner(opts).spin(target);
-             //var spinner = new Spinner(opts).spin(main);
-      
-      
-      
+           mediator.on("test", this.test, this);
       
             // Listen to our mediator for events
             mediator.on('column:add', this.addColumn, this);
@@ -18311,34 +18565,35 @@ return Q;
             mediator.on('table:show', this.showTable, this);
             mediator.on('stats:hide', this.hideStats, this);
       
-            //Q.when(Helper.getHomologues(['FBgn0005558'], friendlyMines.flyMine))
-            //.then(Helper.launchAll(friendlyMines.flyMine))
-            Q.when(Helper.launchAll(friendlyMines.flyMine))
-            .then (function(o) {
-              //App.showTable();
-              console.log("I have fnished", o);
-            });
+      
+            Q.when(Helper.launchAll(friendlyMines.flymine))
+            .then(function(results) { return console.log(results) })
+            .then(function() { mediator.trigger('table:show', {});});
         
         
+          },
+      
+          test: function() {
+              console.log("test function trigger");
+          },
+      
+          render: function() {
+            var output = _.template(this.templateShell, {});
+            this.$el.html(output);
+            return this;
           },
       
           // Show our data table:
           showTable: function() {
       
+            console.log("showTable has been called");
             // Build our table view.
-            var tableView = new TableView({collection: pathwayCollection});
+            var atableView = new TableView({collection: pwayCollection});
+            console.log("showing table");
       
-            // Add the rendered view to our application
-            this.$el.find(".pwayMain").html(tableView.render().$el);
+            console.log("done rendering");
       
-            //this.$el.find(".pwayMain").append(this.dataPaneTemplate({}));
-      
-      
-            // Save for later use, this will hide our table
-            $("#fire").click(function() {
-              console.log("I have been fired.");
-              App.$el.find(".dataPane").toggleClass("active");
-            });
+             this.$(".pwayMain").append(atableView.render().el);
       
       
           },
@@ -18356,7 +18611,10 @@ return Q;
               datasets: pway.aModel.get("dataSets")
             }
       
-            var detailsHtml = this.detailsTemplate({"pway": object});
+      
+      
+            var detailsTemplate = require('../templates/details');
+            var detailsHtml = _.template(detailsTemplate, {pway: object});
          
             this.$el.find(".dataPane").html(detailsHtml);
             this.$el.find(".dataPane").addClass("active");
@@ -18367,22 +18625,274 @@ return Q;
       
           addColumn: function(colName) {
       
-            var index = _.where(this.columns, {taxonId: colName.taxonId});
+      
+            var index = _.where(Globals.columns, {taxonId: colName.taxonId});
             if (index.length < 1) {
-              this.columns.push(colName);
-              this.columns.sort(dynamicSort("sName"));
+              Globals.columns.push(colName);
+              Globals.columns.sort(Helper.dynamicSort("sName"));
             }
           },
       
           hideStats: function() {
             console.log("hiding stats");
-             App.$el.find(".dataPane").removeClass("active");
+             this.$(".dataPane").removeClass("active");
           }
       
         });
       
       
         module.exports = AppView;
+    });
+
+    
+    // celltitleview.js
+    require.register('MyFirstCommonJSApp/src/views/celltitleview.js', function(exports, require, module) {
+    
+      var mediator = require('../modules/mediator');
+      
+        var CellTitleTemplate = require('../templates/celltitle.js');
+      
+        var PathwayCellTitleView = Backbone.View.extend({
+      
+            tagName: "td",
+      
+            events: {
+              'click': 'openMe'
+            },
+      
+            initialize: function(options) {
+      
+              this.options = options || {};
+      
+            },
+      
+            openMe: function() {
+      
+              mediator.trigger('stats:hide', {taxonId: this.options.taxonId, aModel: this.model});
+      
+            },
+      
+            render: function() {
+      
+             var compiledTemplate = _.template(CellTitleTemplate, {name: this.model.get("name")});
+             this.$el.append(compiledTemplate);
+      
+              return this.$el;
+            }
+      
+      
+        });
+      
+        module.exports = PathwayCellTitleView;
+    });
+
+    
+    // pathwaycellview.js
+    require.register('MyFirstCommonJSApp/src/views/pathwaycellview.js', function(exports, require, module) {
+    
+      var mediator = require('../modules/mediator');
+      
+      var CellTemplate = require('../templates/pathwaycell');
+      
+      var PathwayCellView = Backbone.View.extend({
+      
+            tagName: "td",
+      
+            events: {
+              'click': 'openMe'
+            },
+      
+            initialize: function(options) {
+      
+              this.options = options || {};
+      
+            },
+      
+            openMe: function() {
+      
+              mediator.trigger('stats:show', {taxonId: this.options.taxonId, aModel: this.model});
+              console.log("Cell Click Detected");
+      
+            },
+      
+            render: function() {
+      
+      
+             var cellTemplate = _.template(CellTemplate, {})
+             console.log("cellTemplate: ", cellTemplate);
+      
+             this.$el.html(cellTemplate);
+      
+              return this.$el;
+            },
+      
+            showMessage: function() {
+      
+              this.$el.html("<div>Test</div>");
+            }
+      
+      
+        });
+      
+      module.exports = PathwayCellView;
+    });
+
+    
+    // pathwayview.js
+    require.register('MyFirstCommonJSApp/src/views/pathwayview.js', function(exports, require, module) {
+    
+      var PathwayCellView = require('./pathwaycellview');
+      var PathwayCellTitleView = require('./celltitleview');
+      var Globals = require('../modules/globals');
+      
+      var PathwayView = Backbone.View.extend({
+      
+          tagName: "tr",
+      
+          initialize: function (){
+            
+          
+      
+            //console.log("PathwayView initialized with model: " + JSON.stringify(this.model));
+            //this.setElement("tr");
+            //console.log("pathwayview found");
+          },
+      
+          events: {
+      
+            "click": "open"
+      
+          },
+      
+          open: function() {
+            // Hide the pane if it's showing.
+            //var found = App.$el.find(".active");
+            //console.log("found length", found.length);
+            //if (found.length > 0) {
+            //  found.removeClass("active");
+            //}
+            console.log("Row Click Detected");
+            /*
+            if (dataPaneVisible) {
+              console.log("dataPaneVisible", dataPaneVisible);
+            }*/
+           
+         
+          
+            
+          },
+      
+          render: function() {
+      
+            // Get the models from our organisms:
+            var modelOrganisms = this.model.get("organisms");
+            var foundOrganism;
+      
+            //
+            var rowTemplate="<tr><td class='name'><%= name %></td>"
+      
+            var cellTitleView = new PathwayCellTitleView({
+                 model: this.model,
+            });
+      
+           // console.log("Before everything" +  this.$el.html());
+      
+            this.$el.append(cellTitleView.render());
+      
+            //console.log("here now");
+      
+            //this.$el.append("<td>" + this.model.get("name") + "</td>");
+      
+            // Loop through the master list of organisms
+            //console.log("GLOBALS: " + Globals.columns);
+      
+            _.each(Globals.columns, function(col) {
+      
+                foundOrganism = _.where(modelOrganisms, {taxonId: col.taxonId});
+      
+      
+                if (foundOrganism != null && foundOrganism != "" && foundOrganism.length > 0) {
+                  //console.log("found organism");
+                  var cellView = new PathwayCellView({
+                    model: this.model,
+                    taxonId: col.taxonId
+                  });
+                  this.$el.append(cellView.render());
+                 // console.log("APPENDED" + this.$el.html());
+                 // cellView.render();
+                // this.$el.append(cellView.render());
+                  //rowTemplate += "<td data-taxonid=\"" + foundOrganism[0].taxonId + "\">" + foundOrganism[0].taxonId + "</td>";
+                } else {
+                  //console.log("did not find organism");
+                  this.$el.append("<td></td>");
+                  //rowTemplate += "<td></td>";
+                }
+      
+            }, this);
+      
+           // console.log("tableview el: ", this.$el.html());
+      
+           // console.log("another");
+      
+            //console.log(this.$el);
+           // rowTemplate += "</tr>";
+      
+      
+         // $("#randomtable").append(this.$el)
+      
+            //var html=_.template(rowTemplate,this.model.toJSON());
+             return this;
+          },
+      
+       
+      
+      
+        });
+      
+      module.exports = PathwayView;
+    });
+
+    
+    // tableview.js
+    require.register('MyFirstCommonJSApp/src/views/tableview.js', function(exports, require, module) {
+    
+      var mediator = require("../modules/mediator");
+      var pwayCollection = require('../models/pathwaycollection.js');
+      var templateTableHeaders = require('../templates/tableheaders');
+      var PathwayView = require('./pathwayview');
+      var Globals = require('../modules/globals');
+      
+      var TableView = Backbone.View.extend({
+      
+        //tagName: 'pathwaysappcontainer',
+        tagName: "table",
+        className: "pwayResults",
+      
+        initialize: function() {
+         
+      
+          _.bindAll(this,'render','renderOne');
+          console.log('table view initialized');     
+        },
+        render: function() {
+      
+          var compiledTemplate = _.template(templateTableHeaders, {columns: Globals.columns});
+          console.log("compiledTemplate: " + compiledTemplate);
+          this.$el.append(compiledTemplate);
+          this.collection.each(this.renderOne);
+          console.log("from table view: " + this.$el.html());
+          return this;
+        },
+        renderOne: function(model) {
+      
+          var row=new PathwayView({model: model});
+      
+          this.$el.append(row.render().$el);
+          return this;
+        }
+      });
+      
+      module.exports = TableView;
     });
   })();
 
