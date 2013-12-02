@@ -34,13 +34,17 @@ html, body { height: 100% }
   overflow-x: hidden;
 }
 
-#pathwaysappcontainer .pwayMain .pwayResults {
+#pathwaysappcontainer .pwayMain table {
 
   border-collapse: collapse;
   width: 100%;
   z-index: 0;
 
+
 }
+
+
+
 #pathwaysappcontainer .pwayResults tr:hover td{
   background-color: #252525;
   color: orange;
@@ -54,11 +58,16 @@ html, body { height: 100% }
   padding: 5px;
   border: 1px solid #bdbdbd;
 }
-
+/*
 #pathwaysappcontainer thead tr th {
   padding: 5px;
   background: black;
   color: white;
+}*/
+#pwayResultsId thead {
+  visibility: hidden;
+  border: none;
+  padding: 0;
 }
 
 #pathwaysappcontainer .pwayMain .hit {

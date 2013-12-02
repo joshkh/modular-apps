@@ -18486,10 +18486,46 @@ return Q;
     });
 
     
+    // detailsview.js
+    require.register('MyFirstCommonJSApp/src/templates/detailsview.js', function(exports, require, module) {
+    
+      //module.exports = '<h2>test</h2>';
+      
+      module.exports = '<h2><%= pway.name %></h2> \
+      	<h2><%= pway.organism[0].shortName %></h2> \
+      	<h2>Intersection of Homologous Genes</h2> \
+      	<ul class="genes"> \
+      		<% _.each(pway.organism[0].genes, function(gene) { %> \
+      			<% console.log(gene) %> \
+      			<li> \
+      			<%= "<a href=http://" + gene.url + "/report.do?id=" + gene.objectId + ">" %> \
+      				<%= gene.primaryIdentifier %> \
+      			</a> \
+      			</li> \
+      		<% }) %> \
+      	</ul> \
+      	<h2>Data Set(s)</h2> \
+      	<ul> \
+      		<% _.each(pway.datasets, function(dataset) { %> \
+      			<li> \
+      				<%= dataset.name %> \
+      			</li> \
+      		<% }); %> \
+      	</ul>';
+    });
+
+    
     // pathwaycell.js
     require.register('MyFirstCommonJSApp/src/templates/pathwaycell.js', function(exports, require, module) {
     
       module.exports = '<div class="circle"></div>';
+    });
+
+    
+    // results.js
+    require.register('MyFirstCommonJSApp/src/templates/results.js', function(exports, require, module) {
+    
+      module.exports = '<table id="myTableResults"></table>';
     });
 
     
@@ -18499,6 +18535,7 @@ return Q;
       module.exports = '\
       	<div class="pwayHeader">Cross-Species Pathway Displayer</div> \
       	<div class="pwayWrapper"> \
+      		<div class="headersMain"></div> \
       		<div class="pwayMain"></div> \
       		<div class="dataPane"></div> \
       	</div>';
@@ -18508,9 +18545,25 @@ return Q;
     // tableheaders.js
     require.register('MyFirstCommonJSApp/src/templates/tableheaders.js', function(exports, require, module) {
     
+      module.exports = '<table id="myTableHeaders"> \
+      		<thead>\
+      		<tr>\
+      		<th>Pathway Name</th>\
+      	<% _.each(columns, function(col) { %>\
+      		<th><%= col.sName %></th>\
+      	<% }) %>\
+      	</tr>\
+      	</thead>\
+      	</table>';
+    });
+
+    
+    // tableheaderssanstable.js
+    require.register('MyFirstCommonJSApp/src/templates/tableheaderssanstable.js', function(exports, require, module) {
+    
       module.exports = '<thead>\
       		<tr>\
-      		<th></th>\
+      		<th>Pathway Name</th>\
       	<% _.each(columns, function(col) { %>\
       		<th><%= col.sName %></th>\
       	<% }) %>\
@@ -18527,6 +18580,7 @@ return Q;
         var Helper = require('../modules/helper');
         var pwayCollection = require('../models/pathwaycollection');
         var TableView = require("./tableview");
+        var TableViewHeaders = require("./tableviewheaders");
         var Globals = require('../modules/globals');
       
       
@@ -18589,11 +18643,18 @@ return Q;
             console.log("showTable has been called");
             // Build our table view.
             var atableView = new TableView({collection: pwayCollection});
-            console.log("showing table");
+            var atableViewHeaders = new TableViewHeaders({collection: pwayCollection});
       
-            console.log("done rendering");
+           // console.log("atableView", atableView.el.wrap("<p></p>"));
       
-             this.$(".pwayMain").append(atableView.render().el);
+      
+            this.$(".pwayMain").append(atableViewHeaders.render().el);
+      
+            this.$(".pwayMain").append(atableView.render().el);
+      
+             $("#pwayResultsId th").each(function(i, val) {
+                  $("#myTableHeaders th:eq(" + i + ")").width($(this).width());
+              });
       
       
           },
@@ -18619,7 +18680,7 @@ return Q;
             this.$el.find(".dataPane").html(detailsHtml);
             this.$el.find(".dataPane").addClass("active");
       
-            dataPaneVisible = true;
+            
            
           },
       
@@ -18788,23 +18849,13 @@ return Q;
             var modelOrganisms = this.model.get("organisms");
             var foundOrganism;
       
-            //
-            var rowTemplate="<tr><td class='name'><%= name %></td>"
       
             var cellTitleView = new PathwayCellTitleView({
                  model: this.model,
             });
       
-           // console.log("Before everything" +  this.$el.html());
-      
             this.$el.append(cellTitleView.render());
       
-            //console.log("here now");
-      
-            //this.$el.append("<td>" + this.model.get("name") + "</td>");
-      
-            // Loop through the master list of organisms
-            //console.log("GLOBALS: " + Globals.columns);
       
             _.each(Globals.columns, function(col) {
       
@@ -18812,35 +18863,20 @@ return Q;
       
       
                 if (foundOrganism != null && foundOrganism != "" && foundOrganism.length > 0) {
-                  //console.log("found organism");
                   var cellView = new PathwayCellView({
                     model: this.model,
                     taxonId: col.taxonId
                   });
                   this.$el.append(cellView.render());
-                 // console.log("APPENDED" + this.$el.html());
-                 // cellView.render();
-                // this.$el.append(cellView.render());
-                  //rowTemplate += "<td data-taxonid=\"" + foundOrganism[0].taxonId + "\">" + foundOrganism[0].taxonId + "</td>";
+      
                 } else {
-                  //console.log("did not find organism");
+      
                   this.$el.append("<td></td>");
-                  //rowTemplate += "<td></td>";
+      
                 }
       
             }, this);
       
-           // console.log("tableview el: ", this.$el.html());
-      
-           // console.log("another");
-      
-            //console.log(this.$el);
-           // rowTemplate += "</tr>";
-      
-      
-         // $("#randomtable").append(this.$el)
-      
-            //var html=_.template(rowTemplate,this.model.toJSON());
              return this;
           },
       
@@ -18859,6 +18895,7 @@ return Q;
       var mediator = require("../modules/mediator");
       var pwayCollection = require('../models/pathwaycollection.js');
       var templateTableHeaders = require('../templates/tableheaders');
+      var templateTableHeadersSansTable = require('../templates/tableheaderssanstable');
       var PathwayView = require('./pathwayview');
       var Globals = require('../modules/globals');
       
@@ -18867,20 +18904,28 @@ return Q;
         //tagName: 'pathwaysappcontainer',
         tagName: "table",
         className: "pwayResults",
+        id: "pwayResultsId",
+      
       
         initialize: function() {
          
       
           _.bindAll(this,'render','renderOne');
-          console.log('table view initialized');     
+          console.log('table view initialized');
+      
+      
         },
         render: function() {
       
-          var compiledTemplate = _.template(templateTableHeaders, {columns: Globals.columns});
-          console.log("compiledTemplate: " + compiledTemplate);
+          var compiledTemplate = _.template(templateTableHeadersSansTable, {columns: Globals.columns});
+          //console.log("compiledTemplate: " + compiledTemplate);
+      
           this.$el.append(compiledTemplate);
           this.collection.each(this.renderOne);
           console.log("from table view: " + this.$el.html());
+          //this.$el.append("TESTING");
+          //return this;
+      
           return this;
         },
         renderOne: function(model) {
@@ -18890,6 +18935,45 @@ return Q;
           this.$el.append(row.render().$el);
           return this;
         }
+      });
+      
+      module.exports = TableView;
+    });
+
+    
+    // tableviewheaders.js
+    require.register('MyFirstCommonJSApp/src/views/tableviewheaders.js', function(exports, require, module) {
+    
+      var mediator = require("../modules/mediator");
+      var pwayCollection = require('../models/pathwaycollection.js');
+      var templateTableHeaders = require('../templates/tableheaders');
+      var PathwayView = require('./pathwayview');
+      var Globals = require('../modules/globals');
+      //var TableBody = require('../templates/results');
+      
+      var TableView = Backbone.View.extend({
+      
+        //tagName: 'pathwaysappcontainer',
+        tagName: "div",
+        className: "pwayHeaders",
+      
+        initialize: function() {
+         
+      
+      
+          console.log('table view initialized');     
+        },
+        render: function() {
+      
+          var compiledTemplate = _.template(templateTableHeaders, {columns: Globals.columns});
+          console.log("compiledTemplate: " + compiledTemplate);
+          this.$el.append(compiledTemplate);
+      
+          //this.collection.each(this.renderOne);
+          //console.log("from table view: " + this.$el.html());
+          return this;
+        },
+      
       });
       
       module.exports = TableView;

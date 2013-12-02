@@ -23,12 +23,20 @@ module.exports = (grunt) ->
                 dest: 'build/app.bundle.js'
                 options:
                     separator: ';' # we will minify...
+        jshint:
+            myFirstLint:
+                files: {
+                    src: ['build/app.js']
+                }
+            
 
     grunt.loadNpmTasks('grunt-apps-c')
     grunt.loadNpmTasks('grunt-contrib-concat')
+    grunt.loadNpmTasks('grunt-contrib-jshint')
 
     # Will build mori too.
     grunt.registerTask('default', [
+        'jshint'
         'apps_c'
         'concat'
     ])

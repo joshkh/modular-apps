@@ -3,6 +3,7 @@
   var Helper = require('../modules/helper');
   var pwayCollection = require('../models/pathwaycollection');
   var TableView = require("./tableview");
+  var TableViewHeaders = require("./tableviewheaders");
   var Globals = require('../modules/globals');
 
 
@@ -65,11 +66,18 @@
       console.log("showTable has been called");
       // Build our table view.
       var atableView = new TableView({collection: pwayCollection});
-      console.log("showing table");
+      var atableViewHeaders = new TableViewHeaders({collection: pwayCollection});
 
-      console.log("done rendering");
+     // console.log("atableView", atableView.el.wrap("<p></p>"));
 
-       this.$(".pwayMain").append(atableView.render().el);
+
+      this.$(".pwayMain").append(atableViewHeaders.render().el);
+
+      this.$(".pwayMain").append(atableView.render().el);
+
+       $("#pwayResultsId th").each(function(i, val) {
+            $("#myTableHeaders th:eq(" + i + ")").width($(this).width());
+        });
 
 
     },
@@ -95,7 +103,7 @@
       this.$el.find(".dataPane").html(detailsHtml);
       this.$el.find(".dataPane").addClass("active");
 
-      dataPaneVisible = true;
+      
      
     },
 
