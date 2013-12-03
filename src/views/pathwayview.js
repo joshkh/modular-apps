@@ -48,6 +48,7 @@ var PathwayView = Backbone.View.extend({
 
       var cellTitleView = new PathwayCellTitleView({
            model: this.model,
+           parent: this
       });
 
       this.$el.append(cellTitleView.render());
@@ -61,7 +62,8 @@ var PathwayView = Backbone.View.extend({
           if (foundOrganism != null && foundOrganism != "" && foundOrganism.length > 0) {
             var cellView = new PathwayCellView({
               model: this.model,
-              taxonId: col.taxonId
+              taxonId: col.taxonId,
+              parent: this
             });
             this.$el.append(cellView.render());
 

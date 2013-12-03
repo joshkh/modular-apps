@@ -13,10 +13,10 @@ var pwayCollection = require('../models/pathwaycollection.js');
       var promiseArray = [];
 
       // Step through or mines
-      for (mine in friendlyMines) {
+      for (mine in url) {
 
 
-        promiseArray.push(runOne("FBgn0005558", friendlyMines[mine]));
+        promiseArray.push(runOne("FBgn0005558", url[mine]));
 
       }
 

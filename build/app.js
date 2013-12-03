@@ -407,10 +407,10 @@
             var promiseArray = [];
       
             // Step through or mines
-            for (mine in friendlyMines) {
+            for (mine in url) {
       
       
-              promiseArray.push(runOne("FBgn0005558", friendlyMines[mine]));
+              promiseArray.push(runOne("FBgn0005558", url[mine]));
       
             }
       
@@ -609,7 +609,7 @@
     
       //module.exports = '<h2>test</h2>';
       
-      module.exports = '<h2><%= pway.name %></h2> \
+      module.exports = '<div class="innerDetailsContainer"><h2><%= pway.name %></h2> \
       	<h2><%= pway.organism[0].shortName %></h2> \
       	<h2>Intersection of Homologous Genes</h2> \
       	<ul class="genes"> \
@@ -629,7 +629,7 @@
       				<%= dataset.name %> \
       			</li> \
       		<% }); %> \
-      	</ul>';
+      	</ul></div>';
     });
 
     
@@ -638,7 +638,7 @@
     
       //module.exports = '<h2>test</h2>';
       
-      module.exports = '<h2><%= pway.name %></h2> \
+      module.exports = '<div class="detailsInnerContainer"><h2><%= pway.name %></h2> \
       	<h2><%= pway.organism[0].shortName %></h2> \
       	<h2>Intersection of Homologous Genes</h2> \
       	<ul class="genes"> \
@@ -658,7 +658,7 @@
       				<%= dataset.name %> \
       			</li> \
       		<% }); %> \
-      	</ul>';
+      	</ul></div>';
     });
 
     
@@ -680,11 +680,13 @@
     require.register('MyFirstCommonJSApp/src/templates/shell.js', function(exports, require, module) {
     
       module.exports = '\
-      	<div class="pwayHeader">Cross-Species Pathway Displayer</div> \
       	<div class="pwayWrapper"> \
-      		<div class="headersMain"></div> \
-      		<div class="pwayMain"></div> \
-      		<div class="dataPane"></div> \
+      		<div class="pwayMain"> \
+      			<div id="pwayHeadersContainer"></div> \
+      			<div id="pwayResultsContainer"> \
+      				<div class="dataPane"></div> \
+      			</div> \
+      		</div> \
       	</div>';
     });
 
@@ -692,16 +694,14 @@
     // tableheaders.js
     require.register('MyFirstCommonJSApp/src/templates/tableheaders.js', function(exports, require, module) {
     
-      module.exports = '<table id="myTableHeaders"> \
-      		<thead>\
+      module.exports = '<thead>\
       		<tr>\
       		<th>Pathway Name</th>\
       	<% _.each(columns, function(col) { %>\
       		<th><%= col.sName %></th>\
       	<% }) %>\
       	</tr>\
-      	</thead>\
-      	</table>';
+      	</thead>';
     });
 
     
@@ -748,15 +748,17 @@
       
       
           initialize: function(params) {
-      
+            $(window).on("resize",this.resizeContext)
             console.log(JSON.stringify(params));
+            var friendlyMines = params.friendlyMines;
+            console.log("friendlyMines: " + friendlyMines);
+      
       
            this.$el.html($(this.templateShell));
-           console.log("view el", this.el);
-           var innerDiv = this.$el.find(".pwayMain");
       
       
-            friendlyMines = params.friendlyMines;
+      
+            //var friendlyMines = params.friendlyMines;
       
            mediator.on("test", this.test, this);
       
@@ -767,11 +769,23 @@
             mediator.on('stats:hide', this.hideStats, this);
       
       
-            Q.when(Helper.launchAll(friendlyMines.flymine))
+           // Q.when(Helper.launchAll(friendlyMines.flymine))
+           Q.when(Helper.launchAll(friendlyMines))
             .then(function(results) { return console.log(results) })
             .then(function() { mediator.trigger('table:show', {});});
         
         
+          },
+      
+          resizeContext: function() {
+             $("#pwayResultsId th").each(function(i, val) {
+                  $(".pwayHeaders th:eq(" + i + ")").width($(this).width());
+              });
+             $(".pwayHeaders").width($("#pwayResultsId").width());
+             
+             $("#pwayResultsId").css("margin-top", $("#pwayResultsId thead").height() * -1);
+             $(".dataPane").css("height", $("#pwayResultsContainer").height() + $("#pwayHeadersContainer").height());
+      
           },
       
           test: function() {
@@ -793,15 +807,12 @@
             var atableViewHeaders = new TableViewHeaders({collection: pwayCollection});
       
            // console.log("atableView", atableView.el.wrap("<p></p>"));
+            this.$("#pwayHeadersContainer").append(atableViewHeaders.render().el);
+            this.$("#pwayResultsContainer").append(atableView.render().el);
       
+            this.resizeContext();
       
-            this.$(".pwayMain").append(atableViewHeaders.render().el);
-      
-            this.$(".pwayMain").append(atableView.render().el);
-      
-             $("#pwayResultsId th").each(function(i, val) {
-                  $("#myTableHeaders th:eq(" + i + ")").width($(this).width());
-              });
+            console.log("header height: " + $('#pwayResultsId thead').height());
       
       
           },
@@ -843,7 +854,9 @@
       
           hideStats: function() {
             console.log("hiding stats");
-             this.$(".dataPane").removeClass("active");
+            this.$(".dataPane").removeClass("active");
+            $("tr.highlighted").removeClass("highlighted");
+      
           }
       
         });
@@ -877,6 +890,7 @@
             openMe: function() {
       
               mediator.trigger('stats:hide', {taxonId: this.options.taxonId, aModel: this.model});
+              //this.options.parent.$el.css("background-color", "black");
       
             },
       
@@ -905,6 +919,7 @@
       var PathwayCellView = Backbone.View.extend({
       
             tagName: "td",
+            className: "clickable",
       
             events: {
               'click': 'openMe'
@@ -918,6 +933,8 @@
       
             openMe: function() {
       
+              //this.options.parent.$el.css("background-color", "#252525");
+               this.options.parent.$el.addClass("highlighted");
               mediator.trigger('stats:show', {taxonId: this.options.taxonId, aModel: this.model});
               console.log("Cell Click Detected");
       
@@ -999,6 +1016,7 @@
       
             var cellTitleView = new PathwayCellTitleView({
                  model: this.model,
+                 parent: this
             });
       
             this.$el.append(cellTitleView.render());
@@ -1012,7 +1030,8 @@
                 if (foundOrganism != null && foundOrganism != "" && foundOrganism.length > 0) {
                   var cellView = new PathwayCellView({
                     model: this.model,
-                    taxonId: col.taxonId
+                    taxonId: col.taxonId,
+                    parent: this
                   });
                   this.$el.append(cellView.render());
       
@@ -1101,7 +1120,7 @@
       var TableView = Backbone.View.extend({
       
         //tagName: 'pathwaysappcontainer',
-        tagName: "div",
+        tagName: "table",
         className: "pwayHeaders",
       
         initialize: function() {

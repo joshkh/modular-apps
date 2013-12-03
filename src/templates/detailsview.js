@@ -1,6 +1,6 @@
 //module.exports = '<h2>test</h2>';
 
-module.exports = '<h2><%= pway.name %></h2> \
+module.exports = '<div class="detailsInnerContainer"><h2><%= pway.name %></h2> \
 	<h2><%= pway.organism[0].shortName %></h2> \
 	<h2>Intersection of Homologous Genes</h2> \
 	<ul class="genes"> \
@@ -20,4 +20,4 @@ module.exports = '<h2><%= pway.name %></h2> \
 				<%= dataset.name %> \
 			</li> \
 		<% }); %> \
-	</ul>';
+	</ul></div>';

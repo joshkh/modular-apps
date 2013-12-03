@@ -5,6 +5,7 @@ var CellTemplate = require('../templates/pathwaycell');
 var PathwayCellView = Backbone.View.extend({
 
       tagName: "td",
+      className: "clickable",
 
       events: {
         'click': 'openMe'
@@ -18,6 +19,8 @@ var PathwayCellView = Backbone.View.extend({
 
       openMe: function() {
 
+        //this.options.parent.$el.css("background-color", "#252525");
+         this.options.parent.$el.addClass("highlighted");
         mediator.trigger('stats:show', {taxonId: this.options.taxonId, aModel: this.model});
         console.log("Cell Click Detected");
 

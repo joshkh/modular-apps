@@ -19,6 +19,7 @@ var mediator = require('../modules/mediator');
       openMe: function() {
 
         mediator.trigger('stats:hide', {taxonId: this.options.taxonId, aModel: this.model});
+        //this.options.parent.$el.css("background-color", "black");
 
       },
 

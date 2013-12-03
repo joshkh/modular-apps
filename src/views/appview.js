@@ -24,15 +24,17 @@
 
 
     initialize: function(params) {
-
+      $(window).on("resize",this.resizeContext)
       console.log(JSON.stringify(params));
+      var friendlyMines = params.friendlyMines;
+      console.log("friendlyMines: " + friendlyMines);
+
 
      this.$el.html($(this.templateShell));
-     console.log("view el", this.el);
-     var innerDiv = this.$el.find(".pwayMain");
 
 
-      friendlyMines = params.friendlyMines;
+
+      //var friendlyMines = params.friendlyMines;
 
      mediator.on("test", this.test, this);
 
@@ -43,11 +45,23 @@
       mediator.on('stats:hide', this.hideStats, this);
 
 
-      Q.when(Helper.launchAll(friendlyMines.flymine))
+     // Q.when(Helper.launchAll(friendlyMines.flymine))
+     Q.when(Helper.launchAll(friendlyMines))
       .then(function(results) { return console.log(results) })
       .then(function() { mediator.trigger('table:show', {});});
   
   
+    },
+
+    resizeContext: function() {
+       $("#pwayResultsId th").each(function(i, val) {
+            $(".pwayHeaders th:eq(" + i + ")").width($(this).width());
+        });
+       $(".pwayHeaders").width($("#pwayResultsId").width());
+       
+       $("#pwayResultsId").css("margin-top", $("#pwayResultsId thead").height() * -1);
+       $(".dataPane").css("height", $("#pwayResultsContainer").height() + $("#pwayHeadersContainer").height());
+
     },
 
     test: function() {
@@ -69,15 +83,12 @@
       var atableViewHeaders = new TableViewHeaders({collection: pwayCollection});
 
      // console.log("atableView", atableView.el.wrap("<p></p>"));
+      this.$("#pwayHeadersContainer").append(atableViewHeaders.render().el);
+      this.$("#pwayResultsContainer").append(atableView.render().el);
 
+      this.resizeContext();
 
-      this.$(".pwayMain").append(atableViewHeaders.render().el);
-
-      this.$(".pwayMain").append(atableView.render().el);
-
-       $("#pwayResultsId th").each(function(i, val) {
-            $("#myTableHeaders th:eq(" + i + ")").width($(this).width());
-        });
+      console.log("header height: " + $('#pwayResultsId thead').height());
 
 
     },
@@ -119,7 +130,9 @@
 
     hideStats: function() {
       console.log("hiding stats");
-       this.$(".dataPane").removeClass("active");
+      this.$(".dataPane").removeClass("active");
+      $("tr.highlighted").removeClass("highlighted");
+
     }
 
   });

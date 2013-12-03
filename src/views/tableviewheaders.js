@@ -8,7 +8,7 @@ var Globals = require('../modules/globals');
 var TableView = Backbone.View.extend({
 
   //tagName: 'pathwaysappcontainer',
-  tagName: "div",
+  tagName: "table",
   className: "pwayHeaders",
 
   initialize: function() {
