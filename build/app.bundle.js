@@ -18257,41 +18257,54 @@ return Q;
           //return function (genes) {
       
             /// Array to store our pathway
+            death = function(err) {
+              console.log("death: " + err);
+            }
+      
             var promiseArray = [];
       
             // Step through or mines
             for (mine in url) {
-      
-      
               promiseArray.push(runOne("FBgn0005558", url[mine]));
-      
             }
       
             // Return when all results have finished.
       
-            return Q.all(promiseArray);
+            return Q.all(promiseArray).fail(death);
       
           //}
         }
       
         var runOne = function(gene, location) {
       
-              return Q.when(getHomologues([gene], location))
-              .then(function(returned) {
-                return getPathwaysByGene(location, returned, "collection");
-              });
+      
+      
+          return Q.when(getHomologues([gene], location)).then(
+            function(returned) {
+              return getPathwaysByGene(location, returned, "collection");
+            },
+            function(e) {
+              console.log("I EXPECT TO BE SEEN, BUT NOONE HAS SEEN ME YET.");
+            }
+          ).fail(error);
+      
+          function error (err) {
+                console.log("done " + err);
+          }
+      
+      /*
+           return Q.when(getHomologues([gene], location))
+          .then(function(returned) {
+            return getPathwaysByGene(location, returned, "collection")
+          }).fail(error);
+      */
+              
         }
       
         // :: (string, string) -> (Array<Gene>) -> Promise<Array<Record>>
         var getPathwaysByGene = function(url, genes, pathwayCollection) { 
       
-          //return function(o) {
-          
-           // console.log("o", o);
-      
             var query, printRecords, getService, getData, error, fin, luString;
-      
-      
       
             // Build a lookup string from our array of genes:
             luString = genes.map(function(gene) {return "\"" + gene.primaryIdentifier + "\""}).join(',');
@@ -18324,30 +18337,18 @@ return Q;
                  
                 })
       
-                 //console.log("PWAYs", pways);
-      
                  pwayCollection.add(pways);
-      
-                //pways.url = url;
-      
-              //console.log("pwayc", pways);
       
                 return pways;
       
               }
       
       
-              
-              //pathwayCollection.add(pway);
-              //console.log("pway: ", pway);
-              //return pway;
-      
-      
             } // End makeModels
       
             // Return our error
             error = function(err) {
-              return console.log('Error from getPathwaysByGene: ' + err);
+              throw new Error("HELP ME");
             };
       
             // Wait for our results and then return them.
@@ -18410,18 +18411,14 @@ return Q;
       
               return values;
             }
-          },
-      
-          // Error
-          error = function(err) {
-            return console.log('Error from getHomologues using url: ' + url + ', ' + err);
-          };
+          }
+          function error (err) {
+                console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + url + err);
+                return new Error(err);
+          }
       
           // Return our results when finished
-          return Q(getService(url))
-           .then(getData) 
-           .then(returnResults())
-           .fail(error);
+          return Q(getService(url)).then(getData).then(returnResults()).fail(error);
         } // End getHomologues
       
         function dynamicSort(property) {
@@ -18435,6 +18432,13 @@ return Q;
               return result * sortOrder;
           }
         }
+      
+      /*
+        var d = Q.defer();
+        doSth.then(d.resolve, d.reject);
+        setTimeout(d.reject.bind(d, new Error("TIMEOUT")), 2000);
+        return d.promise;
+        */
       
       exports.getHomologues = getHomologues;
       exports.launchAll = launchAll;
