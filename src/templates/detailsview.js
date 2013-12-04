@@ -7,7 +7,7 @@ module.exports = '<div class="detailsInnerContainer"><h2><%= pway.name %></h2> \
 		<% _.each(pway.organism[0].genes, function(gene) { %> \
 			<% console.log(gene) %> \
 			<li> \
-			<%= "<a href=http://" + gene.url + "/report.do?id=" + gene.objectId + ">" %> \
+			<%= "<a target="_blank" href=http://" + gene.url + "/report.do?id=" + gene.objectId + ">" %> \
 				<%= gene.primaryIdentifier %> \
 			</a> \
 			</li> \
