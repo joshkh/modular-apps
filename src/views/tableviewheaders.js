@@ -1,3 +1,4 @@
+var $ = require('../modules/dependencies').$;
 var mediator = require("../modules/mediator");
 var pwayCollection = require('../models/pathwaycollection.js');
 var templateTableHeaders = require('../templates/tableheaders');

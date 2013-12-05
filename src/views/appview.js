@@ -5,7 +5,7 @@
   var TableView = require("./tableview");
   var TableViewHeaders = require("./tableviewheaders");
   var Globals = require('../modules/globals');
-
+var $ = require('../modules/dependencies').$;
 
   // The Application
   // --------------
@@ -30,7 +30,7 @@
       console.log("friendlyMines: " + friendlyMines);
 
 
-     this.$el.html($(this.templateShell));
+     this.$el.html(this.templateShell);
 
 
 
@@ -43,10 +43,11 @@
       mediator.on('stats:show', this.showStats, this);
       mediator.on('table:show', this.showTable, this);
       mediator.on('stats:hide', this.hideStats, this);
+      mediator.on('notify:minefail', this.notifyFail, this);
 
 
      // Q.when(Helper.launchAll(friendlyMines.flymine))
-     Q.when(Helper.launchAll(friendlyMines))
+     Q.when(Helper.launchAll(params.gene, friendlyMines))
       .then(function(results) { return console.log(results) })
       .then(function() { mediator.trigger('table:show', {});});
   
@@ -89,6 +90,12 @@
       this.resizeContext();
 
       console.log("header height: " + $('#pwayResultsId thead').height());
+
+      $(document).keyup(function(e) {
+        if (e.keyCode == 27) {
+          mediator.trigger('stats:hide', null);
+          }   // esc
+      });
 
 
     },
@@ -133,6 +140,11 @@
       this.$(".dataPane").removeClass("active");
       $("tr.highlighted").removeClass("highlighted");
 
+    },
+
+    notifyFail: function(value) {
+      console.log("Main view has been notified of a failure: ", value);
+      //console.log("length: " + this.$el.find('#statusBar').append(value.mine));
     }
 
   });

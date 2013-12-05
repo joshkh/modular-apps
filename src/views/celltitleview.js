@@ -1,3 +1,4 @@
+var $ = require('../modules/dependencies').$;
 var mediator = require('../modules/mediator');
 
   var CellTitleTemplate = require('../templates/celltitle.js');

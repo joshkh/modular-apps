@@ -1,7 +1,9 @@
+var $ = require('./dependencies').$;
 var pwayCollection = require('../models/pathwaycollection.js');
+var mediator = require('./mediator');
 
 
- var launchAll = function(url) {
+ var launchAll = function(gene, url) {
 
 
   //console.log("launchAll has been called");
@@ -18,7 +20,7 @@ var pwayCollection = require('../models/pathwaycollection.js');
 
       // Step through or mines
       for (mine in url) {
-        promiseArray.push(runOne("FBgn0005558", url[mine]));
+        promiseArray.push(runOne(gene, url[mine], mine));
       }
 
       // Return when all results have finished.
@@ -28,7 +30,7 @@ var pwayCollection = require('../models/pathwaycollection.js');
     //}
   }
 
-  var runOne = function(gene, location) {
+  var runOne = function(gene, location, mine) {
 
 
 
@@ -37,12 +39,14 @@ var pwayCollection = require('../models/pathwaycollection.js');
         return getPathwaysByGene(location, returned, "collection");
       },
       function(e) {
-        console.log("I EXPECT TO BE SEEN, BUT NOONE HAS SEEN ME YET.");
+        console.log(e, e.stack);
+        mediator.trigger('notify:minefail', {mine: mine, err: e});
+        throw e;
       }
     ).fail(error);
 
     function error (err) {
-          console.log("done " + err);
+      console.log("error has been thrown", err.stack);
     }
 
 /*
@@ -62,6 +66,8 @@ var pwayCollection = require('../models/pathwaycollection.js');
       // Build a lookup string from our array of genes:
       luString = genes.map(function(gene) {return "\"" + gene.primaryIdentifier + "\""}).join(',');
 
+      console.log("luString: ", luString);
+
       // Build our query using our lookup string.
       query = {"select":["Pathway.genes.primaryIdentifier","Pathway.id","Pathway.dataSets.name","Pathway.name","Pathway.identifier","Pathway.genes.organism.shortName","Pathway.genes.organism.taxonId"],"orderBy":[{"Pathway.name":"ASC"}],"where":{"Pathway.genes": {LOOKUP: luString}}};
 
@@ -70,12 +76,13 @@ var pwayCollection = require('../models/pathwaycollection.js');
 
       /** Return an IMJS service. **/
       getService = function (aUrl) {
-        //console.log("getService has been called");
+        console.log("getService has been called");
         return new IM.Service({root: aUrl});
       };
 
       /** Return query results **/
       getData = function (aService) {
+          console.log("------------------------getData has also been called");
           return aService.records(query);
       };
 
@@ -85,6 +92,7 @@ var pwayCollection = require('../models/pathwaycollection.js');
 
         return function(pways) {
 
+          console.log("------------------------MAKE MODELS");
           _.map(pways, function(pathway) {
             pathway.url = url;
            
@@ -101,11 +109,12 @@ var pwayCollection = require('../models/pathwaycollection.js');
 
       // Return our error
       error = function(err) {
+        console.log("I have failed in getPathwaysByGene");
         throw new Error("HELP ME");
       };
 
       // Wait for our results and then return them.
-      return Q(getService(url)).then(getData).then(makeModels()).fail(error);
+      return Q(getService(url)).then(getData).then(makeModels());
 
     } // End function getPathwaysByGene
 
@@ -128,6 +137,7 @@ var getHomologues = function(pIdentifier, url) {
     // Get our service.
     getService = function (aUrl) {
 
+      console.log("building service");
       return new IM.Service({root: aUrl});
 
 
@@ -135,13 +145,14 @@ var getHomologues = function(pIdentifier, url) {
 
     // Run our query.
     getData = function (aService) {
+        console.log("getHomologues detData called.");
         return aService.records(query);
     };
 
     // Deal with our results.
     returnResults = function () {
 
-     // console.log("Returning results.");
+      console.log("Returning results.");
       
       return function (orgs) {
 
@@ -166,12 +177,14 @@ var getHomologues = function(pIdentifier, url) {
       }
     }
     function error (err) {
-          console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + url + err);
-          return new Error(err);
+          console.log("I have failed in getHomologues", err.stack);
+          mediator.trigger('notify:minefail', {url: url});
+          throw new Error(err);
     }
 
     // Return our results when finished
     return Q(getService(url)).then(getData).then(returnResults()).fail(error);
+    //return Q(getService(url)).fail(error);
   } // End getHomologues
 
   function dynamicSort(property) {

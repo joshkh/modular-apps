@@ -5,6 +5,7 @@ module.exports = (grunt) ->
         apps_c:
             commonjs:
                 src: [ 'src/**/*.{coffee,js,eco}' ]
+                #src: [ 'src/main.js' ]
                 dest: 'build/app.js'
                 options:
                     main: 'src/main.js'

@@ -1,3 +1,4 @@
+var $ = require('../modules/dependencies').$;
 var PathwayCellView = require('./pathwaycellview');
 var PathwayCellTitleView = require('./celltitleview');
 var Globals = require('../modules/globals');
@@ -8,11 +9,6 @@ var PathwayView = Backbone.View.extend({
 
     initialize: function (){
       
-    
-
-      //console.log("PathwayView initialized with model: " + JSON.stringify(this.model));
-      //this.setElement("tr");
-      //console.log("pathwayview found");
     },
 
     events: {
@@ -22,20 +18,8 @@ var PathwayView = Backbone.View.extend({
     },
 
     open: function() {
-      // Hide the pane if it's showing.
-      //var found = App.$el.find(".active");
-      //console.log("found length", found.length);
-      //if (found.length > 0) {
-      //  found.removeClass("active");
-      //}
-      console.log("Row Click Detected");
-      /*
-      if (dataPaneVisible) {
-        console.log("dataPaneVisible", dataPaneVisible);
-      }*/
-     
-   
-    
+
+      console.log("Row Click Detected");    
       
     },
 

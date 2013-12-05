@@ -1,12 +1,17 @@
 var AppView = require('./views/appview');
 var Helper = require('./modules/helper');
+var $ = require('./modules/dependencies').$;
 
 module.exports = function(params) {
+
 
 	var view = new AppView(params);
 	if ($(params.target).length != 1) throw "Not found";
 	view.setElement($(params.target));
 	view.render();
+
+
+	console.log("Require Debug Test");
 
 	//console.log(view.re);
 

@@ -1,0 +1,22 @@
+module.exports = function(grunt) {
+ 
+  grunt.initConfig({
+    pkg: grunt.file.readJSON('package.json'),
+
+ 	css_prefix: {
+	    options: {
+	      prefix: 'libname-',
+	      strip: 'legacy-'      
+	    },
+	    files: {
+	      'example/style.css': ['pathway-displayer.css']
+	    }
+  }
+
+  });
+ 
+  grunt.loadNpmTasks('grunt-css-prefix');
+ 
+  grunt.registerTask('default', ['css_prefix']);
+ 
+};

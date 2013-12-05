@@ -5,7 +5,7 @@
     <title>Pathways Displayer</title>
 
     
-    <link rel="stylesheet" type="text/css" href="default.css">
+    <link rel="stylesheet" type="text/css" href="pathway-displayer.css">
 
 
 
@@ -14,7 +14,6 @@
 
     <h2>Pathways Displayer</h2>
     <div id="pathwaysappcontainer"></div>
-    <h2>Continue...</h2>
     
    <script src="app.bundle.js"></script>
 
@@ -26,15 +25,15 @@
             require('MyFirstCommonJSApp')(
             {
                     friendlyMines: {
-                        ratMine:    "http://ratmine.mcw.edu/ratmine/",
-                        metabolicMine:  'www.metabolicmine.org/betax',
-                        yeastMine:    "http://yeastmine.yeastgenome.org/yeastmine/",
-                        flyMine:    'www.flymine.org/release-38.0/',  
-                        modMine:    "intermine.modencode.org/query/"
+                        flyMine:    'www.flymine.org/release-38.0/',
+                        metabolicMine:  'www.metabolicmine.org/beta/',
+                        ratMine:    "http://ratmine.mcw.edu/ratmine",
+                        yeastMine:    "http://yeastmine.yeastgenome.org/yeastmine",
+                        modMine:    "intermine.modencode.org/query"
+                        
                     },
+                    gene: "FBgn0005558",
                     target: "#pathwaysappcontainer"
-                    
-
             });
 
     </script>
