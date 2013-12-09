@@ -1,0 +1,1 @@
+module.exports = '<span class="mineStatus"> <div class="loading-spinner"></div>Loading: <%= name %></span>';

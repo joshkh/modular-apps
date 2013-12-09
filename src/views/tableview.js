@@ -18,7 +18,7 @@ var TableView = Backbone.View.extend({
    
 
     _.bindAll(this,'render','renderOne');
-    console.log('table view initialized');
+    //console.log('table view initialized');
 
 
   },
@@ -29,7 +29,7 @@ var TableView = Backbone.View.extend({
 
     this.$el.append(compiledTemplate);
     this.collection.each(this.renderOne);
-    console.log("from table view: " + this.$el.html());
+    //console.log("from table view: " + this.$el.html());
     //this.$el.append("TESTING");
     //return this;
 

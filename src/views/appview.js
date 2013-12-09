@@ -4,9 +4,12 @@
   var pwayCollection = require('../models/pathwaycollection');
   var TableView = require("./tableview");
   var TableViewHeaders = require("./tableviewheaders");
+  var MineStatusView = require("./statusview");
+  var DataPaneView = require("./datapaneview");
   var Globals = require('../modules/globals');
-var $ = require('../modules/dependencies').$;
+  var $ = require('../modules/dependencies').$;
 
+  var failures = new Array();
   // The Application
   // --------------
   var AppView = Backbone.View.extend({
@@ -21,6 +24,7 @@ var $ = require('../modules/dependencies').$;
 
     //templateApp: _.template($('#tmplPwayApp').html()),
     templateShell: require('../templates/shell'),
+    myFriendlyMines: null,
 
 
     initialize: function(params) {
@@ -28,15 +32,21 @@ var $ = require('../modules/dependencies').$;
       console.log(JSON.stringify(params));
       var friendlyMines = params.friendlyMines;
       console.log("friendlyMines: " + friendlyMines);
+      this.myFriendlyMines = friendlyMines;
 
+
+      var shellTemplate = require('../templates/shell');
+      var shellHTML = _.template(shellTemplate, {"myFriendlyMines": friendlyMines});
+      //console.log("SHELL TEMPLATE!: " + shellHTML);
+      //console.log("friendlyMines LENGTH FROM INSIDE APPVIEW: " + Object.keys(friendlyMines).length);
+      
 
      this.$el.html(this.templateShell);
+     this.$el.html(shellHTML);
 
+    
 
-
-      //var friendlyMines = params.friendlyMines;
-
-     mediator.on("test", this.test, this);
+     //this.$el.find('#statusBar').append("HELLO");
 
       // Listen to our mediator for events
       mediator.on('column:add', this.addColumn, this);
@@ -44,14 +54,28 @@ var $ = require('../modules/dependencies').$;
       mediator.on('table:show', this.showTable, this);
       mediator.on('stats:hide', this.hideStats, this);
       mediator.on('notify:minefail', this.notifyFail, this);
+      mediator.on('notify:queryprogress', this.notifyQueryStatus, this);
+      mediator.on('stats:clearselected', this.clearSelected, this);
+
 
 
      // Q.when(Helper.launchAll(friendlyMines.flymine))
+     //console.log("length: " + this.$el.find('#statusBar').append(value.mine));
+
+     
+
      Q.when(Helper.launchAll(params.gene, friendlyMines))
       .then(function(results) { return console.log(results) })
       .then(function() { mediator.trigger('table:show', {});});
-  
-  
+
+
+    },
+
+    notifyQueryStatus: function(value) {
+
+      statView = new MineStatusView({name: "TEST"});
+    //this.$el.find('#statusBar').append(statView.el);
+     
     },
 
     resizeContext: function() {
@@ -61,7 +85,7 @@ var $ = require('../modules/dependencies').$;
        $(".pwayHeaders").width($("#pwayResultsId").width());
        
        $("#pwayResultsId").css("margin-top", $("#pwayResultsId thead").height() * -1);
-       $(".dataPane").css("height", $("#pwayResultsContainer").height() + $("#pwayHeadersContainer").height());
+       $(".dataPane").css("height", $("#pwayResultsContainer").height() + $("#pwayHeadersContainer").height() + $("#statusBar").height() );
 
     },
 
@@ -70,7 +94,7 @@ var $ = require('../modules/dependencies').$;
     },
 
     render: function() {
-      var output = _.template(this.templateShell, {});
+      var output = _.template(this.templateShell, {myFriendlyMines: this.myFriendlyMines});
       this.$el.html(output);
       return this;
     },
@@ -97,6 +121,23 @@ var $ = require('../modules/dependencies').$;
           }   // esc
       });
 
+      mediator.trigger('notify:queryprogress', this.myFriendlyMines);
+
+      // We have failures, let the user know
+
+      var output;
+
+      if (failures.length > 0) {
+        var failureTemplate = require('../templates/failurestatus');
+        output = _.template(failureTemplate, {failedMines: failures});
+      } else {
+        output = require('../templates/successstatus');
+      }
+
+
+      this.$el.find("#statusBar").html(output);
+     
+
 
     },
 
@@ -118,11 +159,14 @@ var $ = require('../modules/dependencies').$;
       var detailsTemplate = require('../templates/details');
       var detailsHtml = _.template(detailsTemplate, {pway: object});
    
-      this.$el.find(".dataPane").html(detailsHtml);
+      //this.$el.find(".dataPane").html(detailsHtml);
       this.$el.find(".dataPane").addClass("active");
 
-      
-     
+      var testModel = new Backbone.Model(object);
+      console.log("testModel: " + JSON.stringify(testModel, null, 2));
+
+      var dataView = new DataPaneView({model: testModel});
+      //this.$el.find(".dataPane").html(detailsHtml);
     },
 
     addColumn: function(colName) {
@@ -139,12 +183,18 @@ var $ = require('../modules/dependencies').$;
       console.log("hiding stats");
       this.$(".dataPane").removeClass("active");
       $("tr.highlighted").removeClass("highlighted");
+      
 
     },
 
     notifyFail: function(value) {
-      console.log("Main view has been notified of a failure: ", value);
-      //console.log("length: " + this.$el.find('#statusBar').append(value.mine));
+     failures.push(value.mine);
+    },
+
+    clearSelected: function() {
+      //$("tr.highlighted").removeClass("highlighted");
+      console.log("clearSelected called");
+      this.$("tr.highlighted").removeClass("highlighted");
     }
 
   });

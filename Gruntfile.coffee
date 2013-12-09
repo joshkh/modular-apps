@@ -24,6 +24,23 @@ module.exports = (grunt) ->
                 dest: 'build/app.bundle.js'
                 options:
                     separator: ';' # we will minify...
+
+        rework:
+            app:
+                src: [ 'example/pathway-displayer.css' ]
+                dest: 'build/app.prefixed.css'
+                options:
+                    use: [
+                        [ 'rework.prefixSelectors', '.-im-pathways-displayer' ]
+                    ]
+
+            bundle:
+                src: [ 'example/pathway-displayer.css' ]
+                dest: 'build/app.bundle.prefixed.css'
+                options:
+                    use: [
+                        [ 'rework.prefixSelectors', '.-im-pathways-displayer' ]
+                    ]
         #jshint:
             #options: grunt.file.readJSON("jshint.json")
             #myFirstLint:
@@ -35,15 +52,18 @@ module.exports = (grunt) ->
     grunt.loadNpmTasks('grunt-apps-c')
     grunt.loadNpmTasks('grunt-contrib-concat')
     grunt.loadNpmTasks('grunt-contrib-jshint')
+    grunt.loadNpmTasks('grunt-rework')
 
     # Will build mori too.
     grunt.registerTask('default', [
         'apps_c'
         'concat'
+        'rework'
     ])
 
     # Use when watching...
     grunt.registerTask('build', [
         'apps_c'
         'concat'
+        'rework'
     ])
