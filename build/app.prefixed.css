@@ -9,19 +9,17 @@
 }
 
 .-im-pathways-displayer #pathwaysappcontainer {
-  overflow: none;
-  position: relative;
-  max-height: 200px;
+  overflow: hidden;
+  display: block;
+  height: 200px;
 }
 
 .-im-pathways-displayer #pathwaysappcontainer .pwayMain {
-  max-height: 200px;
-  width: 100%;
-  min-height: 200px;
+  height: 200px;
   position: absolute;
   top: 0;
   left: 0;
-  background: #eeeeee;
+  width: 100%;
 }
 
 .-im-pathways-displayer #pathwaysappcontainer .pwayMain table {
@@ -31,23 +29,24 @@
 }
 
 .-im-pathways-displayer #pathwaysappcontainer .pwayResults tr:hover td {
-  background-color: #252525;
-  color: orange;
+  background-color: #FFF3D3;
 }
 
-.-im-pathways-displayer #pathwaysappcontainer .pwayMain .pwayResults tr {
+/*
+
+#pathwaysappcontainer .pwayMain .pwayResults tr {
   background-color: white;
-}
+}*/
 
 .-im-pathways-displayer #pathwaysappcontainer .pwayMain .pwayResults tr.highlighted {
-  background-color: #252525;
-  color: white;
+  background-color: #FFF3D3;
 }
 
-.-im-pathways-displayer #pathwaysappcontainer .pwayMain td {
+/*
+#pathwaysappcontainer .pwayMain td {
   padding: 2px;
   border: 1px solid #bdbdbd;
-}
+}*/
 
 /*
 #pathwaysappcontainer thead tr th {
@@ -56,26 +55,33 @@
   color: white;
 }*/
 
-.-im-pathways-displayer #pwayResultsId thead {
+/*
+#pwayResultsId thead {
   border: none;
   padding: 0;
-}
+}*/
 
-.-im-pathways-displayer #pathwaysappcontainer .pwayMain .hit {
+/*
+#pathwaysappcontainer .pwayMain .hit {
   padding: 5px;
   border: 1px solid #bdbdbd;
-}
+}*/
 
-.-im-pathways-displayer #pathwaysappcontainer .pwayDetails {
+/*
+#pathwaysappcontainer .pwayDetails {
+
   border: 1px solid #bdbdbd;
   padding: 10px 5px 10px 5px;
   background: white;
   color: black;
-}
 
-.-im-pathways-displayer #pathwaysappcontainer .pwayDetails a {
+
+}*/
+
+/*
+#pathwaysappcontainer .pwayDetails a {
   color: orange;
-}
+}*/
 
 /*
 #pathwaysappcontainer .pwayHeaders {
@@ -109,7 +115,7 @@
   position: absolute;
   top: 0;
   right: 0;
-  background: #e7e7e7;
+  background: #FFF3D3;
   color: black;
   text-align: center;
   /*padding-left: 5px;*/
@@ -138,15 +144,17 @@
   box-shadow:         -3px 0px 5px rgba(50, 50, 50, 0.35);*/
 }
 
-.-im-pathways-displayer .dataPane ul {
+/*
+.dataPane ul {
   list-style-type: none;
   padding: 0px;
   margin: 0px;
-}
+}*/
 
-.-im-pathways-displayer .dataPane h2 {
+/*
+.dataPane h2 {
   font-size: 14px;
-}
+}*/
 
 .-im-pathways-displayer .flyin {
   -webkit-transition: opacity 400ms linear, width 80ms ease-in-out, right 200ms ease-out;
@@ -167,14 +175,16 @@
   width: 100%;
 }
 
-.-im-pathways-displayer table.detailsTable td {
+/*
+table.detailsTable td {
   padding: 5px;
-}
+}*/
 
-.-im-pathways-displayer table.detailsTable th {
+/*
+table.detailsTable th {
   font-size: 18px;
   text-align: center;
-}
+}*/
 
 .-im-pathways-displayer #pwayResultsContainer {
   overflow: auto;
@@ -183,7 +193,7 @@
 }
 
 .-im-pathways-displayer #pwayResultsId {
-  height: 200px;
+  height: 100px;
 }
 
 .-im-pathways-displayer .innerDetailsContainer {
@@ -196,5 +206,9 @@
   padding: 2px;
   /*background: black;*/
   /*color: white;*/
-  display: block;
+}
+
+.-im-pathways-displayer .hidden {
+  display: none;
+  color: green;
 }

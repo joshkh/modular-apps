@@ -129,13 +129,15 @@
 
       if (failures.length > 0) {
         var failureTemplate = require('../templates/failurestatus');
+        this.$el.find("#statusBar").removeClass("hidden");
         output = _.template(failureTemplate, {failedMines: failures});
-      } else {
-        output = require('../templates/successstatus');
+        this.$el.find("#statusBar").html(output);
       }
 
 
-      this.$el.find("#statusBar").html(output);
+      //
+      
+      
      
 
 
