@@ -21308,15 +21308,15 @@ module.exports={
       
               luString = values.map(function(gene) {return gene.primaryIdentifier}).join(',');
               _.each(values, function(gene) {
-                 // console.log(gene.primaryIdentifier);
+                 //console.log(gene.primaryIdentifier);
               });
-             // console.log("luString" + luString);
+              console.log("luString" + luString);
       
               return values;
             }
           }
           function error (err) {
-                console.log("I have failed in getHomologues", err.stack);
+                console.log("I have failed in getHomologues.", err);
                 //mediator.trigger('notify:minefail', {url: url});
                 throw new Error(err);
           }
@@ -21408,15 +21408,14 @@ module.exports={
     // failurestatus.js
     root.require.register('MyFirstCommonJSApp/src/templates/failurestatus.js', function(exports, require, module) {
     
-      module.exports = '<div class="inline-list">WARNING! The following mines were unreachable: \
-      				<ul> \
+      module.exports = '<span>WARNING! The following mines were unreachables: </span> \
+      				<ul class="inline"> \
       				<% _.each(failedMines, function(mine) { %> \
       					<li> \
       					<%= mine %> \
       					</li> \
       				<% }) %> \
-      				</ul> \
-      				</div>';
+      				</ul>';
     });
 
     
@@ -21541,16 +21540,11 @@ module.exports={
       
             var shellTemplate = require('../templates/shell');
             var shellHTML = _.template(shellTemplate, {"myFriendlyMines": friendlyMines});
-            //console.log("SHELL TEMPLATE!: " + shellHTML);
-            //console.log("friendlyMines LENGTH FROM INSIDE APPVIEW: " + Object.keys(friendlyMines).length);
             
       
            this.$el.html(this.templateShell);
            this.$el.html(shellHTML);
       
-          
-      
-           //this.$el.find('#statusBar').append("HELLO");
       
             // Listen to our mediator for events
             mediator.on('column:add', this.addColumn, this);
@@ -21588,8 +21582,14 @@ module.exports={
               });
              $(".pwayHeaders").width($("#pwayResultsId").width());
              
+             // Moves our table header over the copy:
              $("#pwayResultsId").css("margin-top", $("#pwayResultsId thead").height() * -1);
-             $(".dataPane").css("height", $("#pwayResultsContainer").height() + $("#pwayHeadersContainer").height() + $("#statusBar").height() );
+      
+            $(".dataPane").css("top", $("#pwayHeadersContainer").height());
+             //$(".dataPane").css("height", $("#pwayResultsContainer").height() + $("#pwayHeadersContainer").height() + $("#statusBar").height() );
+             $(".dataPane").css("height", $("#pwayResultsContainer").height());
+      
+             console.log("HEIGHT CHECK OF pwayResultsContainer CONTAINER: " + $("#pwayResultsContainer").height() );
       
           },
       
@@ -21634,6 +21634,7 @@ module.exports={
             if (failures.length > 0) {
               var failureTemplate = require('../templates/failurestatus');
               this.$el.find("#statusBar").removeClass("hidden");
+              this.$el.find("#statusBar").addClass("warning");
               output = _.template(failureTemplate, {failedMines: failures});
               this.$el.find("#statusBar").html(output);
             }
@@ -21694,6 +21695,7 @@ module.exports={
           },
       
           notifyFail: function(value) {
+            console.log("notifay failure with value: " + JSON.stringify(value, null, 2));
            failures.push(value.mine);
           },
       

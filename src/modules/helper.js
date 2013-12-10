@@ -169,15 +169,15 @@ var getHomologues = function(pIdentifier, url) {
 
         luString = values.map(function(gene) {return gene.primaryIdentifier}).join(',');
         _.each(values, function(gene) {
-           // console.log(gene.primaryIdentifier);
+           //console.log(gene.primaryIdentifier);
         });
-       // console.log("luString" + luString);
+        console.log("luString" + luString);
 
         return values;
       }
     }
     function error (err) {
-          console.log("I have failed in getHomologues", err.stack);
+          console.log("I have failed in getHomologues.", err);
           //mediator.trigger('notify:minefail', {url: url});
           throw new Error(err);
     }

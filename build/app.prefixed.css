@@ -1,21 +1,14 @@
-@import url(http://fonts.googleapis.com/css?family=Roboto:100);
-
-@import url(http://fonts.googleapis.com/css?family=Roboto+Slab:400,300);
-
-@import url(http://fonts.googleapis.com/css?family=Droid+Sans);
-
 .-im-pathways-displayer body {
   /*background: #1a1a1a;*/
 }
 
 .-im-pathways-displayer #pathwaysappcontainer {
-  overflow: hidden;
   display: block;
-  height: 200px;
+  height: 250px;
 }
 
 .-im-pathways-displayer #pathwaysappcontainer .pwayMain {
-  height: 200px;
+  /*height: 200px;*/
   position: absolute;
   top: 0;
   left: 0;
@@ -95,15 +88,11 @@
 
 .-im-pathways-displayer .circle {
   border-radius: 50%;
-  width: 16px;
-  height: 16px;
+  width: 9px;
+  height: 9px;
   background: orange;
   margin: auto;
-  text-align: center;
   vertical-align: top;
-  display: table;
-  overflow: hidden;
-  font-weight: bold;
   /* width and height can be anything, as long as they're equal */
 }
 
@@ -120,7 +109,7 @@
   text-align: center;
   /*padding-left: 5px;*/
   width: 0px;
-  height: 200px;
+  /*height: 200px;*/
   -webkit-transition: width 0.25s;
   text-align: left;
   /*
@@ -168,7 +157,7 @@
 
 .-im-pathways-displayer .pwayWrapper {
   position: relative;
-  height: 200px;
+  /*height: 200px;*/
 }
 
 .-im-pathways-displayer table.detailsTable {
@@ -189,11 +178,11 @@ table.detailsTable th {
 .-im-pathways-displayer #pwayResultsContainer {
   overflow: auto;
   overflow-x: hidden;
-  max-height: 200px;
+  max-height: 250px;
 }
 
 .-im-pathways-displayer #pwayResultsId {
-  height: 100px;
+  /*height: 100px;*/
 }
 
 .-im-pathways-displayer .innerDetailsContainer {
@@ -211,4 +200,15 @@ table.detailsTable th {
 .-im-pathways-displayer .hidden {
   display: none;
   color: green;
+}
+
+.-im-pathways-displayer ul.inline {
+  display: inline;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.-im-pathways-displayer ul.inline li {
+  display: inline;
 }
