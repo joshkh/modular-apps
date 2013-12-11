@@ -14338,7 +14338,7 @@ var qEndingLine = captureLine();
 return Q;
 
 });
-;/*! imjs - v3.0.0-beta - 2013-12-05 */
+;/*! imjs - v3.0.0-beta - 2013-12-11 */
 
 // This library is open source software according to the definition of the
 // GNU Lesser General Public Licence, Version 3, (LGPLv3) a copy of which is
@@ -14348,7 +14348,7 @@ return Q;
 // The copyright is held by InterMine (www.intermine.org) and Alex Kalderimis (alex@intermine.org).
 
 (function() {
-  var HAS_CONSOLE, HAS_JSON, NOT_ENUM, hasDontEnumBug, hasOwnProperty, m, _fn, _i, _len, _ref, _ref1, _ref2, _ref3;
+  var HAS_CONSOLE, HAS_JSON, NOT_ENUM, hasDontEnumBug, hasOwnProperty, head, m, script, _fn, _i, _len, _ref, _ref1, _ref2, _ref3;
 
   HAS_CONSOLE = typeof console !== 'undefined';
 
@@ -14357,7 +14357,11 @@ return Q;
   NOT_ENUM = ['toString', 'toLocaleString', 'valueOf', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'constructor'];
 
   if (!HAS_JSON) {
-    jQuery.getScript('http://cdn.intermine.org/js/json3/3.2.2/json3.min.js');
+    script = document.createElement('script');
+    script.src = 'http://cdn.intermine.org/js/json3/3.2.2/json3.min.js';
+    script.type = 'text/javascript';
+    head = document.getElementsByTagName('head')[0];
+    head.appendChild(script);
   }
 
   if (Object.keys == null) {
@@ -14560,6 +14564,7 @@ return Q;
   constants = exports;
 
   constants.ACCEPT_HEADER = {
+    'xml': 'application/xml',
     'json': 'application/json',
     'jsonobjects': 'application/json;type=objects',
     'jsontable': 'application/json;type=table',
@@ -14578,7 +14583,7 @@ return Q;
 module.exports=require('zlU5Ni');
 },{}],"zlU5Ni":[function(require,module,exports){
 (function() {
-  var ACCEPT_HEADER, CHARSET, CONVERTERS, IE_VERSION, PESKY_COMMA, Promise, URLENC, check, error, httpinvoke, matches, merge, re, streaming, success, ua, utils, withCB, _ref;
+  var ACCEPT_HEADER, CHARSET, CONVERTERS, IE_VERSION, PESKY_COMMA, Promise, URLENC, annotateError, check, error, httpinvoke, matches, merge, re, streaming, success, ua, utils, withCB, _ref;
 
   httpinvoke = require('httpinvoke');
 
@@ -14614,7 +14619,7 @@ module.exports=require('zlU5Ni');
   };
 
   exports.supports = function(x) {
-    if ((0 < IE_VERSION && IE_VERSION < 10) && x === 'PUT' || x === 'DELETE') {
+    if (((0 < IE_VERSION && IE_VERSION < 10)) && (x === 'PUT' || x === 'DELETE')) {
       return false;
     } else {
       return true;
@@ -14673,8 +14678,8 @@ module.exports=require('zlU5Ni');
 
   check = function(response) {
     var e, err, msg, sc, _ref1, _ref2;
-    sc = response.statusCode;
-    if ((200 <= sc && sc < 400)) {
+    sc = response != null ? response.statusCode : void 0;
+    if (((sc != null) && (200 <= sc && sc < 400)) || ((!(sc != null)) && ((response != null ? response.body : void 0) != null))) {
       return response.body;
     } else {
       msg = "Bad response: " + sc;
@@ -14692,8 +14697,14 @@ module.exports=require('zlU5Ni');
     'text json': JSON.parse
   };
 
+  annotateError = function(url) {
+    return function(err) {
+      throw new Error("Request to " + url + " failed: " + err);
+    };
+  };
+
   exports.doReq = function(opts, iter) {
-    var headers, isJSON, method, options, postdata, resp, url, _ref1, _ref2;
+    var headers, isJSON, method, options, postdata, resp, sep, url, _ref1, _ref2;
     method = opts.type;
     url = opts.url;
     headers = (_ref1 = opts.headers) != null ? _ref1 : {};
@@ -14702,7 +14713,8 @@ module.exports=require('zlU5Ni');
     if (opts.data != null) {
       postdata = typeof opts.data === 'string' ? opts.data : "application/json" === opts.contentType ? JSON.stringify(opts.data) : utils.querystring(opts.data);
       if ((method === 'GET' || method === 'DELETE') && (postdata != null ? postdata.length : void 0)) {
-        url += '?' + postdata;
+        sep = /\?/.test(url) ? '&' : '?';
+        url += sep + postdata;
         postdata = void 0;
       } else {
         headers['Content-Type'] = (opts.contentType || URLENC) + CHARSET;
@@ -14719,7 +14731,7 @@ module.exports=require('zlU5Ni');
       options.inputType = 'text';
       options.input = postdata;
     }
-    resp = Promise.from(httpinvoke(url, method, options)).then(check);
+    resp = Promise.from(httpinvoke(url, method, options)).then(check, annotateError(url));
     resp.then(opts.success, opts.error);
     if (iter) {
       return resp.then(streaming);
@@ -15599,7 +15611,7 @@ module.exports=require('zlU5Ni');
 
 },{"promise":21}],10:[function(require,module,exports){
 (function() {
-  var BASIC_ATTRS, CODES, LIST_PIPE, Query, RESULTS_METHODS, SIMPLE_ATTRS, conAttrs, conStr, conToJSON, conValStr, concatMap, copyCon, decapitate, didntRemove, f, filter, fold, get, get_canonical_op, headLess, id, idConStr, intermine, interpretConArray, interpretConstraint, invoke, merge, mth, multiConStr, noUndefVals, noValueConStr, pairsToObj, partition, removeIrrelevantSortOrders, simpleConStr, stringToSortOrder, take, toQueryString, typeConStr, union, utils, withCB, _fn, _get_data_fetcher, _i, _j, _len, _len1, _ref,
+  var BASIC_ATTRS, CODES, LIST_PIPE, Query, REQUIRES_VERSION, RESULTS_METHODS, SIMPLE_ATTRS, conAttrs, conStr, conToJSON, conValStr, concatMap, copyCon, decapitate, didntRemove, f, filter, fold, get, get_canonical_op, headLess, id, idConStr, intermine, interpretConArray, interpretConstraint, invoke, merge, mth, multiConStr, noUndefVals, noValueConStr, partition, removeIrrelevantSortOrders, simpleConStr, stringToSortOrder, toQueryString, typeConStr, union, utils, withCB, _fn, _get_data_fetcher, _i, _j, _len, _len1, _ref,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __slice = [].slice,
@@ -15611,7 +15623,7 @@ module.exports=require('zlU5Ni');
 
   utils = require('./util');
 
-  withCB = utils.withCB, merge = utils.merge, pairsToObj = utils.pairsToObj, filter = utils.filter, partition = utils.partition, fold = utils.fold, take = utils.take, concatMap = utils.concatMap, id = utils.id, get = utils.get, invoke = utils.invoke;
+  REQUIRES_VERSION = utils.REQUIRES_VERSION, withCB = utils.withCB, merge = utils.merge, filter = utils.filter, partition = utils.partition, fold = utils.fold, concatMap = utils.concatMap, id = utils.id, get = utils.get, invoke = utils.invoke;
 
   toQueryString = utils.querystring;
 
@@ -16079,7 +16091,7 @@ module.exports=require('zlU5Ni');
       }
       pathOf = xmlAttr('path');
       styleOf = xmlAttr('style');
-      q = pairsToObj(toAttrPairs(query, qAttrs));
+      q = utils.pairsToObj(toAttrPairs(query, qAttrs));
       q.view = q.view.split(/\s+/);
       q.sortOrder = stringToSortOrder(q.sortOrder);
       q.joins = (function() {
@@ -16102,7 +16114,7 @@ module.exports=require('zlU5Ni');
           con = _ref[_i];
           _results.push((function(con) {
             var c, tn, v, values, x;
-            c = pairsToObj(toAttrPairs(con, cAttrs));
+            c = utils.pairsToObj(toAttrPairs(con, cAttrs));
             if (c.ids != null) {
               c.ids = (function() {
                 var _j, _len1, _ref1, _results1;
@@ -16179,7 +16191,7 @@ module.exports=require('zlU5Ni');
       this.views = [];
       this.joins = {};
       this.displayNames = utils.copy((_ref = (_ref1 = properties.displayNames) != null ? _ref1 : properties.aliases) != null ? _ref : {});
-      _ref2 = ['name', 'title', 'comment', 'description'];
+      _ref2 = ['name', 'title', 'comment', 'description', 'type'];
       for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
         prop = _ref2[_i];
         if (properties[prop] != null) {
@@ -16414,7 +16426,7 @@ module.exports=require('zlU5Ni');
       return [c.path, c.type];
     };
 
-    scFold = utils.compose(pairsToObj, utils.map(toPathAndType), filter(get('type')));
+    scFold = utils.compose(utils.pairsToObj, utils.map(toPathAndType), filter(get('type')));
 
     Query.prototype.getSubclasses = function() {
       return scFold(this.constraints);
@@ -16751,17 +16763,18 @@ module.exports=require('zlU5Ni');
       return clone;
     };
 
-    Query.prototype.getSortDirection = function(path) {
-      var dir, so, _i, _len, _ref;
-      path = this.adjustPath(path);
-      _ref = this.sortOrder;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        so = _ref[_i];
-        if (so.path === path) {
-          dir = so.direction;
-        }
+    Query.prototype.getSortDirection = function(sorted) {
+      var a, so;
+      a = this.adjustPath(sorted);
+      if (!(this.isInQuery(a) || this.isRelevant(a))) {
+        throw new Error("" + sorted + " is not in the query");
       }
-      return dir;
+      so = utils.find(this.sortOrder, function(_arg) {
+        var path;
+        path = _arg.path;
+        return a === path;
+      });
+      return so != null ? so.direction : void 0;
     };
 
     Query.prototype.isOuterJoined = function(path) {
@@ -16826,21 +16839,21 @@ module.exports=require('zlU5Ni');
     };
 
     Query.prototype.addOrSetSortOrder = function(so) {
-      var currentDirection, oe, _i, _len, _ref;
+      var currentDirection, oe;
       so = this._parse_sort_order(so);
       currentDirection = this.getSortDirection(so.path);
       if (!(currentDirection != null)) {
-        return this.addSortOrder(so);
+        this.addSortOrder(so);
       } else if (currentDirection !== so.direction) {
-        _ref = this.sortOrder;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          oe = _ref[_i];
-          if (oe.path === so.path) {
-            oe.direction = so.direction;
-          }
-        }
-        return this.trigger('change:sortorder', this.sortOrder);
+        oe = utils.find(this.sortOrder, function(_arg) {
+          var path;
+          path = _arg.path;
+          return path === so.path;
+        });
+        oe.direction = so.direction;
+        this.trigger('change:sortorder', this.sortOrder);
       }
+      return this;
     };
 
     Query.prototype.addSortOrder = function(so) {
@@ -16882,20 +16895,13 @@ module.exports=require('zlU5Ni');
     };
 
     Query.prototype.addJoin = function(join) {
-      var _ref, _ref1, _ref2;
       if (typeof join === 'string') {
         join = {
           path: join,
           style: 'OUTER'
         };
       }
-      join.path = this.adjustPath(join.path);
-      join.style = (_ref = (_ref1 = join.style) != null ? _ref1.toUpperCase() : void 0) != null ? _ref : join.style;
-      if (_ref2 = join.style, __indexOf.call(Query.JOIN_STYLES, _ref2) < 0) {
-        throw new Error("Invalid join style: " + join.style);
-      }
-      this.joins[join.path] = join.style;
-      return this.trigger('set:join', join.path, join.style);
+      return this.setJoinStyle(join.path, join.style);
     };
 
     Query.prototype.setJoinStyle = function(path, style) {
@@ -16904,6 +16910,9 @@ module.exports=require('zlU5Ni');
       }
       path = this.adjustPath(path);
       style = style.toUpperCase();
+      if (__indexOf.call(Query.JOIN_STYLES, style) < 0) {
+        throw new Error("Invalid join style: " + style);
+      }
       if (this.joins[path] !== style) {
         this.joins[path] = style;
         this.trigger('change:joins', {
@@ -17107,23 +17116,88 @@ module.exports=require('zlU5Ni');
       return withCB(cb, this.service.post('query/code', req).then(this.service.VERIFIER).then(get('code')));
     };
 
+    Query.prototype.setName = function(name) {
+      this.name = name;
+    };
+
     Query.prototype.save = function(name, cb) {
-      var req, setName,
-        _this = this;
-      if (name != null) {
-        this.name = name;
-      }
-      req = {
-        data: this.toXML(),
-        contentType: "application/xml; charset=UTF-8",
-        url: this.service.root + 'query',
-        type: 'POST',
-        dataType: 'json'
-      };
-      setName = function(name) {
-        return _this.name = name;
-      };
-      return withCB(cb, setName, this.service.doReq(req).then(this.service.VERIFIER).then(get('name')));
+      var _this = this;
+      return REQUIRES_VERSION(this.service, 16, function() {
+        var req, _ref;
+        if (utils.isFunction(name)) {
+          _ref = [null, name], name = _ref[0], cb = _ref[1];
+        }
+        if (name != null) {
+          _this.setName(name);
+        }
+        req = {
+          type: 'PUT',
+          path: 'user/queries',
+          data: _this.toXML(),
+          contentType: 'application/xml',
+          dataType: 'json'
+        };
+        return withCB(cb, _this.service.authorise(req).then(function(authed) {
+          return _this.service.doReq(authed);
+        }).then(function(resp) {
+          return resp.queries;
+        }));
+      });
+    };
+
+    Query.prototype.store = function(name, cb) {
+      var _this = this;
+      return REQUIRES_VERSION(this.service, 16, function() {
+        var getName, req, updateName, _ref;
+        if (utils.isFunction(name)) {
+          _ref = [null, name], name = _ref[0], cb = _ref[1];
+        }
+        if (name != null) {
+          _this.setName(name);
+        }
+        updateName = function(err, name) {
+          if (err == null) {
+            return _this.setName(name);
+          }
+        };
+        getName = utils.compose(get(_this.name), get('queries'));
+        req = {
+          type: 'POST',
+          path: 'user/queries',
+          data: _this.toXML(),
+          contentType: 'application/xml',
+          dataType: 'json'
+        };
+        return withCB(cb, updateName, _this.service.authorise(req).then(function(authed) {
+          return _this.service.doReq(authed);
+        }).then(getName));
+      });
+    };
+
+    Query.prototype.saveAsTemplate = function(name, cb) {
+      var _this = this;
+      return REQUIRES_VERSION(this.service, 16, function() {
+        var req, _ref;
+        if (utils.isFunction(name)) {
+          _ref = [null, name], name = _ref[0], cb = _ref[1];
+        }
+        if (name != null) {
+          _this.setName(name);
+        }
+        if (!_this.name) {
+          throw new Error("Templates must have a name");
+        }
+        req = {
+          type: 'POST',
+          path: 'templates',
+          data: "<template " + (conAttrs(_this, ['name', 'title', 'comment'])) + ">" + (_this.toXML()) + "</template>",
+          contentType: 'application/xml',
+          dataType: 'json'
+        };
+        return withCB(cb, _this.service.authorise(req).then(function(authed) {
+          return _this.service.doReq(authed);
+        }));
+      });
     };
 
     Query.prototype.getCodeURI = function(lang) {
@@ -17175,7 +17249,7 @@ module.exports=require('zlU5Ni');
           return p.isa(t);
         });
       };
-      toRun.views = take(n)((function() {
+      toRun.views = utils.take(n)((function() {
         var _i, _len, _ref, _results;
         _ref = this.getViewNodes();
         _results = [];
@@ -17320,7 +17394,7 @@ module.exports=require('zlU5Ni');
 
 },{"./util":14,"./xml":16}],11:[function(require,module,exports){
 (function() {
-  var CLASSKEYS, CLASSKEY_PATH, DEFAULT_ERROR_HANDLER, DEFAULT_PROTOCOL, ENRICHMENT_PATH, HAS_PROTOCOL, HAS_SUFFIX, IDResolutionJob, LISTS_PATH, LIST_OPERATION_PATHS, LIST_PIPE, List, MODELS, MODEL_PATH, Model, PATH_VALUES_PATH, PREF_PATH, Promise, QUERY_RESULTS_PATH, QUICKSEARCH_PATH, Query, RELEASES, RELEASE_PATH, REQUIRES_VERSION, SUBTRACT_PATH, SUFFIX, SUMMARYFIELDS_PATH, SUMMARY_FIELDS, Service, TABLE_ROW_PATH, TEMPLATES_PATH, TO_NAMES, User, VERSIONS, VERSION_PATH, WHOAMI_PATH, WIDGETS, WIDGETS_PATH, WITH_OBJ_PATH, base64, dejoin, error, get, getListFinder, http, intermine, invoke, map, merge, set, success, to_query_string, utils, version, withCB, _get_or_fetch,
+  var CLASSKEYS, CLASSKEY_PATH, DEFAULT_ERROR_HANDLER, DEFAULT_PROTOCOL, ENRICHMENT_PATH, HAS_PROTOCOL, HAS_SUFFIX, IDResolutionJob, LISTS_PATH, LIST_OPERATION_PATHS, LIST_PIPE, List, MODELS, MODEL_PATH, Model, NEEDS_AUTH, NO_AUTH, PATH_VALUES_PATH, PREF_PATH, Promise, QUERY_RESULTS_PATH, QUICKSEARCH_PATH, Query, RELEASES, RELEASE_PATH, REQUIRES_VERSION, SUBTRACT_PATH, SUFFIX, SUMMARYFIELDS_PATH, SUMMARY_FIELDS, Service, TABLE_ROW_PATH, TEMPLATES_PATH, TO_NAMES, User, VERSIONS, VERSION_PATH, WHOAMI_PATH, WIDGETS, WIDGETS_PATH, WITH_OBJ_PATH, base64, dejoin, error, get, getListFinder, http, intermine, invoke, map, merge, p, set, success, to_query_string, utils, version, withCB, _get_or_fetch, _i, _len, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __slice = [].slice;
@@ -17405,6 +17479,18 @@ module.exports=require('zlU5Ni');
 
   PATH_VALUES_PATH = 'path/values';
 
+  NO_AUTH = {};
+
+  _ref = [VERSION_PATH, RELEASE_PATH, CLASSKEY_PATH, MODEL_PATH, SUMMARYFIELDS_PATH, QUICKSEARCH_PATH, PATH_VALUES_PATH];
+  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+    p = _ref[_i];
+    NO_AUTH[p] = true;
+  }
+
+  NEEDS_AUTH = function(path) {
+    return !NO_AUTH[path];
+  };
+
   HAS_PROTOCOL = /^https?:\/\//i;
 
   HAS_SUFFIX = /service\/?$/i;
@@ -17412,26 +17498,25 @@ module.exports=require('zlU5Ni');
   SUFFIX = "/service/";
 
   DEFAULT_ERROR_HANDLER = function(e) {
-    var f, _ref;
-    f = (_ref = console.error) != null ? _ref : console.log;
+    var f, _ref1;
+    f = (_ref1 = console.error) != null ? _ref1 : console.log;
     return f(e);
   };
 
   _get_or_fetch = function(propName, store, path, key, cb) {
-    var opts, promise, root, useCache, value, _ref;
+    var opts, promise, root, useCache, value, _ref1;
     root = this.root, useCache = this.useCache;
-    opts = {
+    promise = (_ref1 = this[propName]) != null ? _ref1 : this[propName] = useCache && (value = store[root]) ? success(value) : (opts = {
       type: 'GET',
       dataType: 'json',
       data: {
         format: 'json'
       }
-    };
-    promise = (_ref = this[propName]) != null ? _ref : this[propName] = useCache && (value = store[root]) ? success(value) : this.doReq(merge(opts, {
+    }, this.doReq(merge(opts, {
       url: this.root + path
     })).then(function(x) {
       return store[root] = x[key];
-    });
+    }));
     return withCB(cb, promise);
   };
 
@@ -17458,26 +17543,26 @@ module.exports=require('zlU5Ni');
   };
 
   TO_NAMES = function(xs) {
-    var x, _i, _len, _ref, _ref1, _results;
+    var x, _j, _len1, _ref1, _ref2, _results;
     if (xs == null) {
       xs = [];
     }
-    _ref = (utils.isArray(xs) ? xs : [xs]);
+    _ref1 = (utils.isArray(xs) ? xs : [xs]);
     _results = [];
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      x = _ref[_i];
-      _results.push((_ref1 = x.name) != null ? _ref1 : x);
+    for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+      x = _ref1[_j];
+      _results.push((_ref2 = x.name) != null ? _ref2 : x);
     }
     return _results;
   };
 
   Service = (function() {
-    var FIVE_MIN, getNewUserToken, toMapByName;
+    var FIVE_MIN, checkNameParam, getNewUserToken, loadQ, toMapByName;
 
     Service.prototype.doReq = http.doReq;
 
     function Service(_arg) {
-      var noCache, _ref, _ref1,
+      var noCache, _ref1, _ref2,
         _this = this;
       this.root = _arg.root, this.token = _arg.token, this.errorHandler = _arg.errorHandler, this.DEBUG = _arg.DEBUG, this.help = _arg.help, noCache = _arg.noCache;
       this.connectAs = __bind(this.connectAs, this);
@@ -17485,6 +17570,10 @@ module.exports=require('zlU5Ni');
       this.createList = __bind(this.createList, this);
 
       this.resolveIds = __bind(this.resolveIds, this);
+
+      this.templateQuery = __bind(this.templateQuery, this);
+
+      this.savedQuery = __bind(this.savedQuery, this);
 
       this.query = __bind(this.query, this);
 
@@ -17546,10 +17635,10 @@ module.exports=require('zlU5Ni');
         this.root = this.root + SUFFIX;
       }
       this.root = this.root.replace(/ice$/, "ice/");
-      if ((_ref = this.errorHandler) == null) {
+      if ((_ref1 = this.errorHandler) == null) {
         this.errorHandler = DEFAULT_ERROR_HANDLER;
       }
-      if ((_ref1 = this.help) == null) {
+      if ((_ref2 = this.help) == null) {
         this.help = 'no.help.available@dev.null';
       }
       this.useCache = !noCache;
@@ -17562,9 +17651,6 @@ module.exports=require('zlU5Ni');
     }
 
     Service.prototype.post = function(path, data) {
-      if (data == null) {
-        data = {};
-      }
       return this.makeRequest('POST', path, data);
     };
 
@@ -17573,7 +17659,8 @@ module.exports=require('zlU5Ni');
     };
 
     Service.prototype.makeRequest = function(method, path, data, cb, indiv) {
-      var _this = this;
+      var dataType, errBack, opts, timeout, _ref1, _ref2, _ref3,
+        _this = this;
       if (method == null) {
         method = 'GET';
       }
@@ -17589,56 +17676,71 @@ module.exports=require('zlU5Ni');
       if (indiv == null) {
         indiv = false;
       }
+      if (utils.isArray(cb)) {
+        _ref1 = cb, cb = _ref1[0], errBack = _ref1[1];
+      }
+      if (utils.isArray(data)) {
+        data = utils.pairsToObj(data);
+      }
+      if (errBack == null) {
+        errBack = this.errorHandler;
+      }
+      data = utils.copy(data);
+      dataType = this.getFormat(data.format);
+      if (!http.supports(method)) {
+        _ref2 = [method, http.getMethod(method)], data.method = _ref2[0], method = _ref2[1];
+      }
+      opts = {
+        data: data,
+        dataType: dataType,
+        success: cb,
+        error: errBack,
+        path: path,
+        type: method
+      };
+      if ('headers' in data) {
+        opts.headers = utils.copy(data.headers);
+        delete opts.data.headers;
+      }
+      if (timeout = (_ref3 = data.timeout) != null ? _ref3 : this.timeout) {
+        opts.timeout = timeout;
+        delete data.timeout;
+      }
+      return this.authorise(opts).then(function(authed) {
+        return _this.doReq(authed, indiv);
+      });
+    };
+
+    Service.prototype.authorise = function(req) {
+      var _this = this;
       return this.fetchVersion().then(function(version) {
-        var dataType, errBack, opts, timeout, url, _ref, _ref1, _ref2, _ref3;
-        if (utils.isArray(cb)) {
-          _ref = cb, cb = _ref[0], errBack = _ref[1];
+        var opts, pathAdditions, _ref1;
+        opts = utils.copy(req);
+        opts.url = _this.root + opts.path;
+        pathAdditions = [];
+        if (version < 14) {
+          if ('string' === typeof opts.data) {
+            pathAdditions.push(['format', opts.dataType]);
+          } else {
+            opts.data.format = opts.dataType;
+          }
         }
-        if (utils.isArray(data)) {
-          data = utils.pairsToObj(data);
-        }
-        url = _this.root + path;
-        if (errBack == null) {
-          errBack = _this.errorHandler;
-        }
-        data = utils.copy(data);
-        data.format = _this.getFormat(data.format);
-        if (/jsonp/.test(data.format)) {
-          data.method = method;
-          method = 'GET';
-          url += '?callback=?';
-        }
-        dataType = /json/.test(data.format) ? 'json' : 'text';
-        if (!http.supports(method)) {
-          _ref1 = [method, http.getMethod(method)], data.method = _ref1[0], method = _ref1[1];
-        }
-        opts = {
-          data: data,
-          dataType: dataType,
-          success: cb,
-          error: errBack,
-          url: url,
-          type: method
-        };
-        if ('headers' in data) {
-          opts.headers = utils.copy(data.headers);
-          delete opts.data.headers;
-        }
-        if (_this.token != null) {
+        if ((_this.token != null) && NEEDS_AUTH(req.path)) {
           if (version >= 14) {
-            if ((_ref2 = opts.headers) == null) {
+            if ((_ref1 = opts.headers) == null) {
               opts.headers = {};
             }
             opts.headers.Authorization = "Token " + _this.token;
+          } else if ('string' === typeof opts.data) {
+            pathAdditions.push(['token', _this.token]);
           } else {
             opts.data.token = _this.token;
           }
         }
-        if (timeout = (_ref3 = data.timeout) != null ? _ref3 : _this.timeout) {
-          opts.timeout = timeout;
-          delete data.timeout;
+        if (pathAdditions.length) {
+          opts.url += '?' + to_query_string(pathAdditions);
         }
-        return _this.doReq(opts, indiv);
+        return opts;
       });
     };
 
@@ -17663,9 +17765,9 @@ module.exports=require('zlU5Ni');
         cb = (function() {});
       }
       return REQUIRES_VERSION(this, 9, function() {
-        var k, req, v, _ref;
+        var k, req, v, _ref1;
         if (utils.isFunction(options)) {
-          _ref = [options, {}], cb = _ref[0], options = _ref[1];
+          _ref1 = [options, {}], cb = _ref1[0], options = _ref1[1];
         }
         if (typeof options === 'string') {
           req = {
@@ -17688,7 +17790,7 @@ module.exports=require('zlU5Ni');
     };
 
     Service.prototype.count = function(q, cb) {
-      var p, req;
+      var req;
       if (cb == null) {
         cb = (function() {});
       }
@@ -17709,9 +17811,9 @@ module.exports=require('zlU5Ni');
     };
 
     Service.prototype.lookup = function(type, term, context, cb) {
-      var _ref;
+      var _ref1;
       if (utils.isFunction(context)) {
-        _ref = [null, context], context = _ref[0], cb = _ref[1];
+        _ref1 = [null, context], context = _ref1[0], cb = _ref1[1];
       }
       return withCB(cb, this.query({
         from: type,
@@ -17721,9 +17823,9 @@ module.exports=require('zlU5Ni');
     };
 
     Service.prototype.find = function(type, term, context, cb) {
-      var _ref;
+      var _ref1;
       if (utils.isFunction(context)) {
-        _ref = [null, context], context = _ref[0], cb = _ref[1];
+        _ref1 = [null, context], context = _ref1[0], cb = _ref1[1];
       }
       return withCB(cb, this.lookup(type, term, context).then(function(found) {
         if (!(found != null) || found.length === 0) {
@@ -17757,13 +17859,13 @@ module.exports=require('zlU5Ni');
         typeConstraints = {};
       }
       return REQUIRES_VERSION(this, 6, function() {
-        var wanted, _pathValues, _ref, _ref1;
+        var wanted, _pathValues, _ref1, _ref2;
         if (typeof typeConstraints === 'string') {
           wanted = typeConstraints;
           typeConstraints = {};
         }
         if (utils.isFunction(typeConstraints)) {
-          _ref = [cb, typeConstraints], typeConstraints = _ref[0], cb = _ref[1];
+          _ref1 = [cb, typeConstraints], typeConstraints = _ref1[0], cb = _ref1[1];
         }
         if (wanted !== 'count') {
           wanted = 'results';
@@ -17779,7 +17881,7 @@ module.exports=require('zlU5Ni');
           return _this.post(PATH_VALUES_PATH, req).then(get(wanted));
         };
         try {
-          return withCB(cb, _this.fetchModel().then(invoke('makePath', path, (_ref1 = path.subclasses) != null ? _ref1 : typeConstraints)).then(_pathValues));
+          return withCB(cb, _this.fetchModel().then(invoke('makePath', path, (_ref2 = path.subclasses) != null ? _ref2 : typeConstraints)).then(_pathValues));
         } catch (e) {
           return error(e);
         }
@@ -17787,7 +17889,7 @@ module.exports=require('zlU5Ni');
     };
 
     Service.prototype.doPagedRequest = function(q, path, page, format, cb) {
-      var req, _ref,
+      var req, _ref1,
         _this = this;
       if (page == null) {
         page = {};
@@ -17797,7 +17899,7 @@ module.exports=require('zlU5Ni');
       }
       if (q.toXML != null) {
         if (utils.isFunction(page)) {
-          _ref = [page, {}], cb = _ref[0], page = _ref[1];
+          _ref1 = [page, {}], cb = _ref1[0], page = _ref1[1];
         }
         req = merge(page, {
           query: q.toXML(),
@@ -17824,10 +17926,10 @@ module.exports=require('zlU5Ni');
     };
 
     Service.prototype.values = function(q, opts, cb) {
-      var resp, _ref,
+      var resp, _ref1,
         _this = this;
       if (utils.isFunction(opts)) {
-        _ref = [opts, cb], cb = _ref[0], opts = _ref[1];
+        _ref1 = [opts, cb], cb = _ref1[0], opts = _ref1[1];
       }
       resp = !(q != null) ? error("No query term supplied") : (q.descriptors != null) || typeof q === 'string' ? this.pathValues(q, opts).then(map(get('value'))) : q.toXML != null ? q.views.length !== 1 ? error("Expected one column, got " + q.views.length) : this.rows(q, opts).then(map(get(0))) : this.query(q).then(function(query) {
         return _this.values(query, opts);
@@ -17840,7 +17942,7 @@ module.exports=require('zlU5Ni');
     };
 
     Service.prototype.fetchTemplates = function(cb) {
-      return this.get(TEMPLATES_PATH).then(get('templates')).done(cb);
+      return withCB(cb, this.get(TEMPLATES_PATH).then(get('templates')));
     };
 
     Service.prototype.fetchLists = function(cb) {
@@ -17858,10 +17960,10 @@ module.exports=require('zlU5Ni');
       return this.fetchVersion().then(function(v) {
         var fn;
         return withCB(cb, name && v < 13 ? error("Finding lists by name on the server requires version 13. This is only " + v) : (fn = function(ls) {
-          var data, _i, _len, _results;
+          var data, _j, _len1, _results;
           _results = [];
-          for (_i = 0, _len = ls.length; _i < _len; _i++) {
-            data = ls[_i];
+          for (_j = 0, _len1 = ls.length; _j < _len1; _j++) {
+            data = ls[_j];
             _results.push(new List(data, _this));
           }
           return _results;
@@ -17882,10 +17984,10 @@ module.exports=require('zlU5Ni');
       var fn,
         _this = this;
       fn = function(xs) {
-        var x, _i, _len, _results;
+        var x, _j, _len1, _results;
         _results = [];
-        for (_i = 0, _len = xs.length; _i < _len; _i++) {
-          x = xs[_i];
+        for (_j = 0, _len1 = xs.length; _j < _len1; _j++) {
+          x = xs[_j];
           _results.push(new List(x, _this));
         }
         return _results;
@@ -17894,16 +17996,16 @@ module.exports=require('zlU5Ni');
     };
 
     Service.prototype.combineLists = function(operation, options, cb) {
-      var description, lists, name, req, tags, _ref, _ref1;
-      _ref = merge({
+      var description, lists, name, req, tags, _ref1, _ref2;
+      _ref1 = merge({
         lists: [],
         tags: []
-      }, options), name = _ref.name, lists = _ref.lists, tags = _ref.tags, description = _ref.description;
+      }, options), name = _ref1.name, lists = _ref1.lists, tags = _ref1.tags, description = _ref1.description;
       req = {
         name: name,
         description: description
       };
-      if ((_ref1 = req.description) == null) {
+      if ((_ref2 = req.description) == null) {
         req.description = "" + operation + " of " + (lists.join(', '));
       }
       req.tags = tags.join(';');
@@ -17970,8 +18072,8 @@ module.exports=require('zlU5Ni');
     Service.prototype.fetchWidgetMap = function(cb) {
       var _this = this;
       return REQUIRES_VERSION(this, 8, function() {
-        var _ref;
-        return withCB(cb, ((_ref = _this.__wmap__) != null ? _ref : _this.__wmap__ = _this.fetchWidgets().then(toMapByName)));
+        var _ref1;
+        return withCB(cb, ((_ref1 = _this.__wmap__) != null ? _ref1 : _this.__wmap__ = _this.fetchWidgets().then(toMapByName)));
       });
     };
 
@@ -17998,9 +18100,8 @@ module.exports=require('zlU5Ni');
     };
 
     Service.prototype.query = function(options, cb) {
-      var buildQuery, deps,
+      var buildQuery,
         _this = this;
-      deps = [this.fetchModel(), this.fetchSummaryFields()];
       buildQuery = function(_arg) {
         var model, summaryFields;
         model = _arg[0], summaryFields = _arg[1];
@@ -18009,7 +18110,48 @@ module.exports=require('zlU5Ni');
           summaryFields: summaryFields
         }), _this);
       };
-      return withCB(cb, Promise.all(deps).then(buildQuery));
+      return withCB(cb, Promise.all(this.fetchModel(), this.fetchSummaryFields()).then(buildQuery));
+    };
+
+    loadQ = function(service, name) {
+      return function(q) {
+        if (!q) {
+          return error("No query found called " + name);
+        }
+        return service.query(q);
+      };
+    };
+
+    checkNameParam = function(name) {
+      if (name) {
+        if ('string' === typeof name) {
+          return success();
+        } else {
+          return error("Name must be a string");
+        }
+      } else {
+        return error("Name not provided");
+      }
+    };
+
+    Service.prototype.savedQuery = function(name, cb) {
+      var _this = this;
+      return REQUIRES_VERSION(this, 16, function() {
+        return checkNameParam(name).then(function() {
+          return withCB(cb, _this.get('user/queries', {
+            filter: name
+          }).then(function(r) {
+            return r.queries[name];
+          }).then(loadQ(_this, name)));
+        });
+      });
+    };
+
+    Service.prototype.templateQuery = function(name, cb) {
+      var _this = this;
+      return checkNameParam(name).then(function() {
+        return withCB(cb, _this.fetchTemplates().then(get(name)).then(set('type', 'TEMPLATE')).then(loadQ(_this, name)));
+      });
     };
 
     Service.prototype.manageUserPreferences = function(method, data, cb) {
@@ -18268,10 +18410,10 @@ module.exports=require('zlU5Ni');
 
 },{}],13:[function(require,module,exports){
 (function() {
-  var User, do_pref_req, error, get, intermine, isFunction, withCB, _ref,
+  var User, any, do_pref_req, error, get, intermine, isFunction, withCB, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-  _ref = require('./util'), withCB = _ref.withCB, get = _ref.get, isFunction = _ref.isFunction, error = _ref.error;
+  _ref = require('./util'), withCB = _ref.withCB, get = _ref.get, isFunction = _ref.isFunction, any = _ref.any, error = _ref.error;
 
   intermine = exports;
 
@@ -18337,16 +18479,34 @@ module.exports=require('zlU5Ni');
       return do_pref_req(this, {}, 'GET', cb);
     };
 
-    User.prototype.getToken = function(type, cb) {
+    User.prototype.createToken = function(type, message, cb) {
+      var _ref1, _ref2;
       if (type == null) {
         type = 'day';
       }
-      if (cb == null) {
-        cb = null;
+      if (!(cb != null) && any([type, message], isFunction)) {
+        if (isFunction(type)) {
+          _ref1 = [null, null, type], type = _ref1[0], message = _ref1[1], cb = _ref1[2];
+        } else if (isFunction(message)) {
+          _ref2 = [null, message], message = _ref2[0], cb = _ref2[1];
+        }
       }
-      return withCB(cb, this.service.get('user/token', {
-        type: type
+      return withCB(cb, this.service.post('user/tokens', {
+        type: type,
+        message: message
       }).then(get('token')));
+    };
+
+    User.prototype.fetchCurrentTokens = function(cb) {
+      return withCB(cb, this.service.get('user/tokens').then(get('tokens')));
+    };
+
+    User.prototype.revokeAllTokens = function(cb) {
+      return withCB(cb, this.service.makeRequest('DELETE', 'user/tokens'));
+    };
+
+    User.prototype.revokeToken = function(token, cb) {
+      return withCB(cb, this.service.makeRequest('DELETE', "user/tokens/" + token));
     };
 
     return User;
@@ -18827,17 +18987,12 @@ module.exports=require('zlU5Ni');
 
 },{"./promise":9}],15:[function(require,module,exports){
 (function() {
-  var imjs, pkg;
 
-  imjs = exports;
-
-  pkg = require("../package.json");
-
-  imjs.VERSION = pkg.version;
+  exports.VERSION = '3.0.0-beta';
 
 }).call(this);
 
-},{"../package.json":23}],16:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 (function() {
   var DOMParser, sanitize;
 
@@ -18940,141 +19095,14 @@ process.chdir = function (dir) {
 
 },{}],19:[function(require,module,exports){
 if(typeof process !== 'undefined' && typeof process.versions !== 'undefined' && typeof process.versions.node !== 'undefined') {
-;var http = require('http');
+/* jshint unused:true */
+    ;var http = require('http');
 var url = require('url');
 var zlib = require('zlib');
 
-;;var isArrayBufferView = function(input) {
-    return typeof input === 'object' && input !== null && (
-        (global.ArrayBufferView && input instanceof ArrayBufferView) ||
-        (global.Int8Array && input instanceof Int8Array) ||
-        (global.Uint8Array && input instanceof Uint8Array) ||
-        (global.Uint8ClampedArray && input instanceof Uint8ClampedArray) ||
-        (global.Int16Array && input instanceof Int16Array) ||
-        (global.Uint16Array && input instanceof Uint16Array) ||
-        (global.Int32Array && input instanceof Int32Array) ||
-        (global.Uint32Array && input instanceof Uint32Array) ||
-        (global.Float32Array && input instanceof Float32Array) ||
-        (global.Float64Array && input instanceof Float64Array)
-    );
-}, isArray = function(object) {
-    return Object.prototype.toString.call(object) === '[object Array]';
-}, isByteArray = function(input) {
-    return typeof input === 'object' && input !== null && (
-        (global.Buffer && input instanceof Buffer) ||
-        (global.Blob && input instanceof Blob) ||
-        (global.File && input instanceof File) ||
-        (global.ArrayBuffer && input instanceof ArrayBuffer) ||
-        isArrayBufferView(input) ||
-        isArray(input)
-    );
-}, bytearrayMessage = 'an instance of Buffer, nor Blob, nor File, nor ArrayBuffer, nor ArrayBufferView, nor Int8Array, nor Uint8Array, nor Uint8ClampedArray, nor Int16Array, nor Uint16Array, nor Int32Array, nor Uint32Array, nor Float32Array, nor Float64Array, nor Array', supportedMethods = ',GET,HEAD,PATCH,POST,PUT,DELETE,', pass = function(value) {
-    return value;
-}, nextTick = (global.process && global.process.nextTick) || global.setImmediate || global.setTimeout, _undefined;
-;
-
-var decompress = function(output, encoding, cb) {
-    if(encoding === 'gzip') {
-        zlib.gunzip(output, cb);
-    } else if(encoding === 'deflate') {
-        zlib.inflate(output, function(err, out) {
-            if(err) {
-                return zlib.inflateRaw(output, cb);
-            }
-            cb(null, out);
-        });
-    } else if(encoding === 'identity') {
-        process.nextTick(function() {
-            cb(null, output);
-        });
-    } else {
-        process.nextTick(function() {
-            cb(new Error('unsupported encoding ' + encoding));
-        });
-    }
-};
-
-// http://www.w3.org/TR/XMLHttpRequest/#the-setrequestheader()-method
-var forbiddenInputHeaders = ['accept-charset', 'accept-encoding', 'access-control-request-headers', 'access-control-request-method', 'connection', 'content-length', 'content-transfer-encoding', 'cookie', 'cookie2', 'date', 'dnt', 'expect', 'host', 'keep-alive', 'origin', 'referer', 'te', 'trailer', 'transfer-encoding', 'upgrade', 'user-agent', 'via'];
-var validateInputHeaders = function(headers) {
-    for(var header in headers) {
-        if(headers.hasOwnProperty(header)) {
-            var headerl = header.toLowerCase();
-            if(forbiddenInputHeaders.indexOf(headerl) >= 0) {
-                throw new Error('Input header ' + header + ' is forbidden to be set programmatically');
-            }
-            if(headerl.substr(0, 'proxy-'.length) === 'proxy-') {
-                throw new Error('Input header ' + header + ' (to be precise, all Proxy-*) is forbidden to be set programmatically');
-            }
-            if(headerl.substr(0, 'sec-'.length) === 'sec-') {
-                throw new Error('Input header ' + header + ' (to be precise, all Sec-*) is forbidden to be set programmatically');
-            }
-        }
-    }
-};
-
-var copy = function(from, to) {
-    Object.keys(from).forEach(function(key) {
-        to[key] = from[key];
-    });
-    return to;
-};
-
-var httpinvoke = function(uri, method, options, cb) {
-    ;var mixInPromise, promise, failWithoutRequest, uploadProgressCb, inputLength, noData, timeout, inputHeaders, statusCb, initDownload, updateDownload, outputHeaders, exposedHeaders, status, outputBinary, input, outputLength, outputConverter;
-/*************** COMMON initialize parameters **************/
-if(!method) {
-    // 1 argument
-    // method, options, cb skipped
-    method = 'GET';
-    options = {};
-} else if(!options) {
-    // 2 arguments
-    if(typeof method === 'string') {
-        // options. cb skipped
-        options = {};
-    } else if(typeof method === 'object') {
-        // method, cb skipped
-        options = method;
-        method = 'GET';
-    } else {
-        // method, options skipped
-        options = {
-            finished: method
-        };
-        method = 'GET';
-    }
-} else if(!cb) {
-    // 3 arguments
-    if(typeof method === 'object') {
-        // method skipped
-        method.finished = options;
-        options = method;
-        method = 'GET';
-    } else if(typeof options === 'function') {
-        // options skipped
-        options = {
-            finished: options
-        };
-    }
-    // cb skipped
-} else {
-    // 4 arguments
-    options.finished = cb;
-}
-var safeCallback = function(name, aspect) {
-    if(name in options) {
-        return function(a, b, c, d) {
-            try {
-                options[name](a, b, c, d);
-            } catch(_) {
-            }
-            aspect(a, b, c, d);
-        };
-    }
-    return aspect;
-};
-var chain = function(a, b) {
+/* jshint unused:true */
+;;var resolve = 0, reject = 1, progress = 2, chain = function(a, b) {
+    /* jshint expr:true */
     a && a.then && a.then(function() {
         b[resolve].apply(null, arguments);
     }, function() {
@@ -19082,9 +19110,8 @@ var chain = function(a, b) {
     }, function() {
         b[progress].apply(null, arguments);
     });
-};
-var resolve = 0, reject = 1, progress = 2;
-mixInPromise = function(o) {
+    /* jshint expr:false */
+}, nextTick = (global.process && global.process.nextTick) || global.setImmediate || global.setTimeout, mixInPromise = function(o) {
     var value, queue = [], state = progress;
     var makeState = function(newstate) {
         o[newstate] = function(newvalue) {
@@ -19129,8 +19156,156 @@ mixInPromise = function(o) {
         return item._;
     };
     return o;
+}, isArrayBufferView = /* jshint undef:false */function(input) {
+    return typeof input === 'object' && input !== null && (
+        (global.ArrayBufferView && input instanceof ArrayBufferView) ||
+        (global.Int8Array && input instanceof Int8Array) ||
+        (global.Uint8Array && input instanceof Uint8Array) ||
+        (global.Uint8ClampedArray && input instanceof Uint8ClampedArray) ||
+        (global.Int16Array && input instanceof Int16Array) ||
+        (global.Uint16Array && input instanceof Uint16Array) ||
+        (global.Int32Array && input instanceof Int32Array) ||
+        (global.Uint32Array && input instanceof Uint32Array) ||
+        (global.Float32Array && input instanceof Float32Array) ||
+        (global.Float64Array && input instanceof Float64Array)
+    );
+}/* jshint undef:true */, isArray = function(object) {
+    return Object.prototype.toString.call(object) === '[object Array]';
+}, isFormData = function(input) {
+    return typeof input === 'object' && input !== null && global.FormData &&
+        input instanceof global.FormData;
+}, isByteArray = /* jshint undef:false */function(input) {
+    return typeof input === 'object' && input !== null && (
+        (global.Buffer && input instanceof Buffer) ||
+        (global.Blob && input instanceof Blob) ||
+        (global.File && input instanceof File) ||
+        (global.ArrayBuffer && input instanceof ArrayBuffer) ||
+        isArrayBufferView(input) ||
+        isArray(input)
+    );
+}/* jshint undef:true */, supportedMethods = ',GET,HEAD,PATCH,POST,PUT,DELETE,', pass = function(value) {
+    return value;
+}, _undefined;
+;
+/* jshint unused:false */
+
+// http://www.w3.org/TR/XMLHttpRequest/#the-setrequestheader()-method
+var forbiddenInputHeaders = ['accept-charset', 'accept-encoding', 'access-control-request-headers', 'access-control-request-method', 'connection', 'content-length', 'content-transfer-encoding', 'cookie', 'cookie2', 'date', 'dnt', 'expect', 'host', 'keep-alive', 'origin', 'referer', 'te', 'trailer', 'transfer-encoding', 'upgrade', 'user-agent', 'via'];
+var validateInputHeaders = function(headers) {
+    'use strict';
+    for(var header in headers) {
+        if(headers.hasOwnProperty(header)) {
+            var headerl = header.toLowerCase();
+            if(forbiddenInputHeaders.indexOf(headerl) >= 0) {
+                throw [14, header];
+            }
+            if(headerl.substr(0, 'proxy-'.length) === 'proxy-') {
+                throw [15, header];
+            }
+            if(headerl.substr(0, 'sec-'.length) === 'sec-') {
+                throw [16, header];
+            }
+        }
+    }
+};
+
+var copy = function(from, to) {
+    'use strict';
+    Object.keys(from).forEach(function(key) {
+        to[key] = from[key];
+    });
+    return to;
+};
+
+var emptyBuffer = new Buffer([]);
+
+var utf8CharacterSizeFromHeaderByte = function(b) {
+    'use strict';
+    if(b < 128) {
+        // one byte, ascii character
+        return 1;
+    }
+    /* jshint bitwise:false */
+    var mask = (1 << 7) | (1 << 6);
+    var test = 128;
+    if((b & mask) === test) {
+        // b is not a header byte
+        return 0;
+    }
+    for(var length = 1; (b & mask) !== test; length += 1) {
+        mask = (mask >> 1) | 128;
+        test = (test >> 1) | 128;
+    }
+    /* jshint bitwise:true */
+    // multi byte utf8 character
+    return length;
+};
+
+var httpinvoke = function(uri, method, options, cb) {
+    'use strict';
+    /* jshint unused:true */
+    ;/* global httpinvoke, url, method, options, cb */
+/* global nextTick, mixInPromise, pass, progress, reject, resolve, supportedMethods, isArray, isArrayBufferView, isFormData, isByteArray, _undefined */
+/* global setTimeout */
+/* global crossDomain */// this one is a hack, because when in nodejs this is not really defined, but it is never needed
+/* jshint -W020 */
+var promise, failWithoutRequest, uploadProgressCb, downloadProgressCb, inputLength, inputHeaders, statusCb, outputHeaders, exposedHeaders, status, outputBinary, input, outputLength, outputConverter;
+/*************** COMMON initialize parameters **************/
+var downloadTimeout, uploadTimeout, timeout;
+if(!method) {
+    // 1 argument
+    // method, options, cb skipped
+    method = 'GET';
+    options = {};
+} else if(!options) {
+    // 2 arguments
+    if(typeof method === 'string') {
+        // options. cb skipped
+        options = {};
+    } else if(typeof method === 'object') {
+        // method, cb skipped
+        options = method;
+        method = 'GET';
+    } else {
+        // method, options skipped
+        options = {
+            finished: method
+        };
+        method = 'GET';
+    }
+} else if(!cb) {
+    // 3 arguments
+    if(typeof method === 'object') {
+        // method skipped
+        method.finished = options;
+        options = method;
+        method = 'GET';
+    } else if(typeof options === 'function') {
+        // options skipped
+        options = {
+            finished: options
+        };
+    }
+    // cb skipped
+} else {
+    // 4 arguments
+    options.finished = cb;
+}
+var safeCallback = function(name, aspectBefore, aspectAfter) {
+    return function(a, b, c, d) {
+        aspectBefore(a, b, c, d);
+        try {
+            options[name](a, b, c, d);
+        } catch(_) {
+        }
+        aspectAfter(a, b, c, d);
+    };
 };
 failWithoutRequest = function(cb, err) {
+    if(!(err instanceof Error)) {
+        // create error here, instead of nextTick, to preserve stack
+        err = new Error('Error code #' + err +'. See https://github.com/jakutis/httpinvoke#error-codes');
+    }
     nextTick(function() {
         if(cb === null) {
             return;
@@ -19142,28 +19317,42 @@ failWithoutRequest = function(cb, err) {
     return mixInPromise(promise);
 };
 
-uploadProgressCb = safeCallback('uploading', function(current, total) {
+uploadProgressCb = safeCallback('uploading', pass, function(current, total) {
     promise[progress]({
         type: 'upload',
         current: current,
         total: total
     });
 });
-var downloadProgressCb = safeCallback('downloading', function(current, total) {
+downloadProgressCb = safeCallback('downloading', pass, function(current, total, partial) {
     promise[progress]({
         type: 'download',
         current: current,
-        total: total
+        total: total,
+        partial: partial
     });
 });
-statusCb = safeCallback('gotStatus', function(statusCode, headers) {
+statusCb = safeCallback('gotStatus', function() {
+    statusCb = null;
+    if(downloadTimeout) {
+        setTimeout(function() {
+            if(cb) {
+                cb(new Error('download timeout'));
+                promise();
+            }
+        }, downloadTimeout);
+    }
+}, function(statusCode, headers) {
     promise[progress]({
         type: 'headers',
         statusCode: statusCode,
         headers: headers
     });
 });
-cb = safeCallback('finished', function(err, body, statusCode, headers) {
+cb = safeCallback('finished', function() {
+    cb = null;
+    promise();
+}, function(err, body, statusCode, headers) {
     if(err) {
         return promise[reject](err);
     }
@@ -19173,57 +19362,78 @@ cb = safeCallback('finished', function(err, body, statusCode, headers) {
         headers: headers
     });
 });
-timeout = options.timeout || 0;
+var fixPositiveOpt = function(opt) {
+    if(options[opt] === _undefined) {
+        options[opt] = 0;
+    } else if(typeof options[opt] === 'number') {
+        if(options[opt] < 0) {
+            return failWithoutRequest(cb, [1, opt]);
+        }
+    } else {
+        return failWithoutRequest(cb, [2, opt]);
+    }
+};
 var converters = options.converters || {};
 var inputConverter;
-inputLength = 0;
 inputHeaders = options.headers || {};
 outputHeaders = {};
 exposedHeaders = options.corsExposedHeaders || [];
-exposedHeaders.push.apply(exposedHeaders, ['Cache-Control', 'Content-Language', 'Content-Type', 'Content-Length', 'Expires', 'Last-Modified', 'Pragma', 'Content-Range']);
+exposedHeaders.push.apply(exposedHeaders, ['Cache-Control', 'Content-Language', 'Content-Type', 'Content-Length', 'Expires', 'Last-Modified', 'Pragma', 'Content-Range', 'Content-Encoding']);
 /*************** COMMON convert and validate parameters **************/
-if(method.indexOf(',') >= 0 || supportedMethods.indexOf(',' + method + ',') < 0) {
-    return failWithoutRequest(cb, new Error('Unsupported method ' + method));
+var partialOutputMode = options.partialOutputMode || 'disabled';
+if(partialOutputMode.indexOf(',') >= 0 || ',disabled,chunked,joined,'.indexOf(',' + partialOutputMode + ',') < 0) {
+    return failWithoutRequest(cb, [3]);
 }
-outputBinary = options.outputType === 'bytearray';
-if(!options.outputType || options.outputType === 'text' || outputBinary) {
+if(method.indexOf(',') >= 0 || supportedMethods.indexOf(',' + method + ',') < 0) {
+    return failWithoutRequest(cb, [4, method]);
+}
+var optionsOutputType = options.outputType;
+outputBinary = optionsOutputType === 'bytearray';
+if(!optionsOutputType || optionsOutputType === 'text' || outputBinary) {
     outputConverter = pass;
-} else if(converters['text ' + options.outputType]) {
-    outputConverter = converters['text ' + options.outputType];
+} else if(converters['text ' + optionsOutputType]) {
+    outputConverter = converters['text ' + optionsOutputType];
     outputBinary = false;
-} else if(converters['bytearray ' + options.outputType]) {
-    outputConverter = converters['bytearray ' + options.outputType];
+} else if(converters['bytearray ' + optionsOutputType]) {
+    outputConverter = converters['bytearray ' + optionsOutputType];
     outputBinary = true;
 } else {
-    return failWithoutRequest(cb, new Error('Unsupported outputType ' + options.outputType));
+    return failWithoutRequest(cb, [5, optionsOutputType]);
 }
 inputConverter = pass;
-if('input' in options) {
-    input = options.input;
-    if(!options.inputType || options.inputType === 'auto') {
-        if(typeof input !== 'string' && !isByteArray(input)) {
-            return failWithoutRequest(cb, new Error('inputType is undefined or auto and input is neither string, nor ' + bytearrayMessage));
+var optionsInputType = options.inputType;
+input = options.input;
+if(input !== _undefined) {
+    if(!optionsInputType || optionsInputType === 'auto') {
+        if(typeof input !== 'string' && !isByteArray(input) && !isFormData(input)) {
+            return failWithoutRequest(cb, [6]);
         }
-    } else if(options.inputType === 'text') {
+    } else if(optionsInputType === 'text') {
         if(typeof input !== 'string') {
-            return failWithoutRequest(cb, new Error('inputType is text, but input is not a string'));
+            return failWithoutRequest(cb, [7]);
         }
-    } else if (options.inputType === 'bytearray') {
+    } else if (optionsInputType === 'formdata') {
+        if(!isFormData(input)) {
+            return failWithoutRequest(cb, [8]);
+        }
+    } else if (optionsInputType === 'bytearray') {
         if(!isByteArray(input)) {
-            return failWithoutRequest(cb, new Error('inputType is bytearray, but input is neither ' + bytearrayMessage));
+            return failWithoutRequest(cb, [9]);
         }
-    } else if(converters[options.inputType + ' text']) {
-        inputConverter = converters[options.inputType + ' text'];
-    } else if(converters[options.inputType + ' bytearray']) {
-        inputConverter = converters[options.inputType + ' bytearray'];
+    } else if(converters[optionsInputType + ' text']) {
+        inputConverter = converters[optionsInputType + ' text'];
+    } else if(converters[optionsInputType + ' bytearray']) {
+        inputConverter = converters[optionsInputType + ' bytearray'];
+    } else if(converters[optionsInputType + ' formdata']) {
+        inputConverter = converters[optionsInputType + ' formdata'];
     } else {
-        return failWithoutRequest(cb, new Error('There is no converter for specified inputType'));
+        return failWithoutRequest(cb, [10, optionsInputType]);
     }
-    if(typeof input === 'object') {
-        if(global.ArrayBuffer && input instanceof ArrayBuffer) {
-            input = new Uint8Array(input);
+    if(typeof input === 'object' && !isFormData(input)) {
+        if(global.ArrayBuffer && input instanceof global.ArrayBuffer) {
+            input = new global.Uint8Array(input);
         } else if(isArrayBufferView(input)) {
-            input = new Uint8Array(input.buffer, input.byteOffset, input.byteLength);
+            input = new global.Uint8Array(input.buffer, input.byteOffset, input.byteLength);
         }
     }
     try {
@@ -19232,34 +19442,50 @@ if('input' in options) {
         return failWithoutRequest(cb, err);
     }
 } else {
-    if(options.inputType) {
-        return failWithoutRequest(cb, new Error('"input" is undefined, but inputType is defined'));
+    if(optionsInputType && optionsInputType !== 'auto') {
+        return failWithoutRequest(cb, [11]);
     }
     if(inputHeaders['Content-Type']) {
-        return failWithoutRequest(cb, new Error('"input" is undefined, but Content-Type request header is defined'));
+        return failWithoutRequest(cb, [12]);
     }
 }
+var isValidTimeout = function(timeout) {
+    return timeout > 0 && timeout < 1073741824;
+};
+var optionsTimeout = options.timeout;
+if(optionsTimeout !== _undefined) {
+    if(typeof optionsTimeout === 'number' && isValidTimeout(optionsTimeout)) {
+        timeout = optionsTimeout;
+    } else if(isArray(optionsTimeout) && optionsTimeout.length === 2 && isValidTimeout(optionsTimeout[0]) && isValidTimeout(optionsTimeout[1])) {
+        if(httpinvoke.corsFineGrainedTimeouts || !crossDomain) {
+            uploadTimeout = optionsTimeout[0];
+            downloadTimeout = optionsTimeout[1];
+        } else {
+            timeout = optionsTimeout[0] + optionsTimeout[1];
+        }
+    } else {
+        return failWithoutRequest(cb, [13]);
+    }
+}
+if(uploadTimeout) {
+    setTimeout(function() {
+        if(statusCb) {
+            cb(new Error('upload timeout'));
+            promise();
+        }
+    }, uploadTimeout);
+}
+if(timeout) {
+    setTimeout(function() {
+        if(cb) {
+            cb(new Error('timeout'));
+            promise();
+        }
+    }, timeout);
+}
 
-/*************** COMMON initialize helper variables **************/
-var downloaded;
-initDownload = function(total) {
-    if(typeof outputLength === 'undefined') {
-        downloadProgressCb(downloaded, outputLength = total);
-    }
-};
-updateDownload = function(value) {
-    if(value !== downloaded) {
-        downloadProgressCb(downloaded = value, outputLength);
-    }
-};
-noData = function() {
-    initDownload(0);
-    if(cb) {
-        cb(null, _undefined, status, outputHeaders);
-        cb = null;
-    }
-};
 ;
+    /* jshint unused:false */
     /*************** initialize helper variables **************/
     try {
         validateInputHeaders(inputHeaders);
@@ -19274,12 +19500,6 @@ noData = function() {
         res.on('end', pass);
     };
     uri = url.parse(uri);
-    if(timeout > 0) {
-        setTimeout(function() {
-            cb(new Error('Timeout of ' + timeout + 'ms exceeded'));
-            cb = null;
-        }, timeout);
-    }
     var req = http.request({
         hostname: uri.hostname,
         port: Number(uri.port),
@@ -19288,14 +19508,18 @@ noData = function() {
         headers: inputHeaders
     }, function(res) {
         var contentEncoding;
-        if(cb === null) {
-            ignorantlyConsume(res);
-            return;
+        if(!cb) {
+            return ignorantlyConsume(res);
         }
 
         outputHeaders = res.headers;
         if('content-encoding' in outputHeaders) {
             contentEncoding = outputHeaders['content-encoding'];
+            if(['identity', 'gzip', 'deflate'].indexOf(contentEncoding) < 0) {
+                cb(new Error('unsupported Content-Encoding ' + contentEncoding));
+                cb = null;
+                return ignorantlyConsume(res);
+            }
             delete outputHeaders['content-encoding'];
         } else {
             contentEncoding = 'identity';
@@ -19304,83 +19528,123 @@ noData = function() {
         status = res.statusCode;
 
         uploadProgressCb(inputLength, inputLength);
-        if(cb === null) {
-            ignorantlyConsume(res);
-            return;
+        if(!cb) {
+            return ignorantlyConsume(res);
         }
 
         statusCb(status, outputHeaders);
-        if(cb === null) {
-            ignorantlyConsume(res);
-            return;
+        if(!cb) {
+            return ignorantlyConsume(res);
         }
 
-        updateDownload(0);
-        if(cb === null) {
-            ignorantlyConsume(res);
-            return;
-        }
-        if(typeof outputHeaders['content-length'] !== 'undefined') {
-            initDownload(Number(outputHeaders['content-length']));
-            if(cb === null) {
-                ignorantlyConsume(res);
-                return;
-            }
-        }
-        if(method === 'HEAD' || typeof outputHeaders['content-type'] === 'undefined') {
-            ignorantlyConsume(res);
-            return noData();
+        if(contentEncoding === 'identity' && 'content-length' in outputHeaders) {
+            outputLength = Number(outputHeaders['content-length']);
         }
 
-        var output = [], downloaded = 0;
-        res.on('data', function(chunk) {
-            if(cb === null) {
+        var partial = partialOutputMode === 'disabled' ? _undefined : (outputBinary ? [] : '');
+
+        downloadProgressCb(0, outputLength, partial);
+        if(!cb) {
+            return ignorantlyConsume(res);
+        }
+        if(method === 'HEAD') {
+            ignorantlyConsume(res);
+            downloadProgressCb(0, 0, partial);
+            return cb && cb(null, _undefined, status, outputHeaders);
+        }
+
+        var inputStream;
+        if(contentEncoding === 'identity') {
+            inputStream = res;
+        } else {
+            inputStream = zlib['create' + (contentEncoding === 'gzip' ? 'Gunzip' : 'InflateRaw')]();
+            res.pipe(inputStream);
+        }
+
+        var output = [], downloaded = 0, leftover = emptyBuffer;
+        inputStream.on('data', function(chunk) {
+            if(!cb) {
                 return;
             }
+
+            if(partialOutputMode !== 'disabled' && !outputBinary) {
+                chunk = Buffer.concat([leftover, chunk]);
+                var charsize = 0, newLeftoverLength = 0;
+                while(charsize === 0 && newLeftoverLength < chunk.length) {
+                    newLeftoverLength += 1;
+                    charsize = utf8CharacterSizeFromHeaderByte(chunk[chunk.length - newLeftoverLength]);
+                }
+                if(newLeftoverLength === charsize) {
+                    leftover = emptyBuffer;
+                } else {
+                    leftover = chunk.slice(chunk.length - newLeftoverLength);
+                    chunk = chunk.slice(0, chunk.length - newLeftoverLength);
+                }
+            }
+
             downloaded += chunk.length;
             output.push(chunk);
-            updateDownload(downloaded);
-            if(cb === null) {
-                return;
+
+            var partial;
+
+            if(partialOutputMode !== 'disabled') {
+                partial = partialOutputMode === 'chunked' ? chunk : Buffer.concat(output);
+                if(!outputBinary) {
+                    partial = partial.toString('utf8');
+                }
             }
+
+            downloadProgressCb(downloaded, outputLength, partial);
         });
-        res.on('end', function() {
-            if(cb === null) {
+        inputStream.on('error', cb);
+        inputStream.on('end', function() {
+            if(!cb) {
                 return;
             }
-            updateDownload(downloaded);
-            if(cb === null) {
-                return;
-            }
+
+            // just in case the utf8 text stream was damaged, and there is leftover
+            output.push(leftover);
+            downloaded += leftover.length;
 
             if(typeof outputLength === 'undefined') {
                 outputLength = downloaded;
             }
 
-            decompress(Buffer.concat(output, downloaded), contentEncoding, function(err, output) {
-                if(!cb) {
-                    return;
-                }
-                if(err) {
-                    cb(err);
-                    cb = null;
-                    return;
-                }
-                if(!outputBinary) {
-                    output = output.toString('utf8');
-                }
-                try {
-                    cb(null, outputConverter(output), status, outputHeaders);
-                } catch(err) {
-                    cb(err);
-                }
-                cb = null;
-            });
+            if(downloaded !== outputLength) {
+                return cb(new Error('network error'));
+            }
+
+            output = Buffer.concat(output, downloaded);
+            if(!outputBinary) {
+                output = output.toString('utf8');
+            }
+
+            var partial;
+            if(partialOutputMode === 'chunked') {
+                partial = outputBinary ? leftover : leftover.toString('utf8');
+            } else if(partialOutputMode === 'joined') {
+                partial = outputBinary ? output : output.toString('utf8');
+            }
+
+            downloadProgressCb(outputLength, outputLength, partial);
+            if(!cb) {
+                return;
+            }
+
+            if(outputLength === 0 && typeof outputHeaders['content-type'] === 'undefined') {
+                return cb(null, _undefined, status, outputHeaders);
+            }
+
+            try {
+                cb(null, outputConverter(output), status, outputHeaders);
+            } catch(err) {
+                cb(err);
+            }
         });
     });
 
     nextTick(function() {
-        if(cb === null) {
+        if(!cb) {
             return;
         }
         uploadProgressCb(0, inputLength);
@@ -19389,24 +19653,21 @@ noData = function() {
         input = new Buffer(input);
         inputLength = input.length;
         req.write(input);
+    } else {
+        inputLength = 0;
     }
-    req.on('error', function(e) {
-        if(cb === null) {
+    req.on('error', function() {
+        if(!cb) {
             return;
         }
-        cb(e);
-        cb = null;
+        cb(new Error('network error'));
     });
     req.end();
     promise = function() {
-        if(cb === null) {
+        if(!cb) {
             return;
         }
-
-        // these statements are in case "abort" is called in "finished" callback
-        var _cb = cb;
-        cb = null;
-        _cb(new Error('abort'));
+        cb(new Error('abort'));
     };
     return mixInPromise(promise);
 };
@@ -19421,11 +19682,15 @@ httpinvoke.corsPUT = true;
 httpinvoke.corsStatus = true;
 httpinvoke.corsResponseTextOnly = false;
 httpinvoke.requestTextOnly = false;
+httpinvoke.PATCH = true;
+httpinvoke.corsFineGrainedTimeouts = true;
 
 module.exports = httpinvoke;
 ;
+/* jshint unused:false */
 } else {
-;(function (root, factory) {
+/* jshint unused:true */
+    ;(function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define(factory);
     } else if (typeof exports === 'object') {
@@ -19433,9 +19698,72 @@ module.exports = httpinvoke;
     } else {
         root.httpinvoke = factory();
   }
-}(this, function () {
+}(this, /* jshint -W030 */
+/* jshint -W033 */
+/* jshint -W068 */
+(function() {
+/* jshint +W030 */
+/* jshint +W033 */
+/* jshint +W068 */
+    'use strict';
     var global;
-    ;global = window;;var isArrayBufferView = function(input) {
+    /* jshint unused:true */
+    ;global = window;;var resolve = 0, reject = 1, progress = 2, chain = function(a, b) {
+    /* jshint expr:true */
+    a && a.then && a.then(function() {
+        b[resolve].apply(null, arguments);
+    }, function() {
+        b[reject].apply(null, arguments);
+    }, function() {
+        b[progress].apply(null, arguments);
+    });
+    /* jshint expr:false */
+}, nextTick = (global.process && global.process.nextTick) || global.setImmediate || global.setTimeout, mixInPromise = function(o) {
+    var value, queue = [], state = progress;
+    var makeState = function(newstate) {
+        o[newstate] = function(newvalue) {
+            var i, p;
+            if(queue) {
+                value = newvalue;
+                state = newstate;
+
+                for(i = 0; i < queue.length; i++) {
+                    if(typeof queue[i][state] === 'function') {
+                        try {
+                            p = queue[i][state].call(null, value);
+                            if(state < progress) {
+                                chain(p, queue[i]._);
+                            }
+                        } catch(err) {
+                            queue[i]._[reject](err);
+                        }
+                    } else if(state < progress) {
+                        queue[i]._[state](value);
+                    }
+                }
+                if(state < progress) {
+                    queue = null;
+                }
+            }
+        };
+    };
+    makeState(progress);
+    makeState(resolve);
+    makeState(reject);
+    o.then = function() {
+        var item = [].slice.call(arguments);
+        item._ = mixInPromise({});
+        if(queue) {
+            queue.push(item);
+        } else if(typeof item[state] === 'function') {
+            nextTick(function() {
+                chain(item[state](value), item._);
+            });
+        }
+        return item._;
+    };
+    return o;
+}, isArrayBufferView = /* jshint undef:false */function(input) {
     return typeof input === 'object' && input !== null && (
         (global.ArrayBufferView && input instanceof ArrayBufferView) ||
         (global.Int8Array && input instanceof Int8Array) ||
@@ -19448,9 +19776,12 @@ module.exports = httpinvoke;
         (global.Float32Array && input instanceof Float32Array) ||
         (global.Float64Array && input instanceof Float64Array)
     );
-}, isArray = function(object) {
+}/* jshint undef:true */, isArray = function(object) {
     return Object.prototype.toString.call(object) === '[object Array]';
-}, isByteArray = function(input) {
+}, isFormData = function(input) {
+    return typeof input === 'object' && input !== null && global.FormData &&
+        input instanceof global.FormData;
+}, isByteArray = /* jshint undef:false */function(input) {
     return typeof input === 'object' && input !== null && (
         (global.Buffer && input instanceof Buffer) ||
         (global.Blob && input instanceof Blob) ||
@@ -19459,10 +19790,11 @@ module.exports = httpinvoke;
         isArrayBufferView(input) ||
         isArray(input)
     );
-}, bytearrayMessage = 'an instance of Buffer, nor Blob, nor File, nor ArrayBuffer, nor ArrayBufferView, nor Int8Array, nor Uint8Array, nor Uint8ClampedArray, nor Int16Array, nor Uint16Array, nor Int32Array, nor Uint32Array, nor Float32Array, nor Float64Array, nor Array', supportedMethods = ',GET,HEAD,PATCH,POST,PUT,DELETE,', pass = function(value) {
+}/* jshint undef:true */, supportedMethods = ',GET,HEAD,PATCH,POST,PUT,DELETE,', pass = function(value) {
     return value;
-}, nextTick = (global.process && global.process.nextTick) || global.setImmediate || global.setTimeout, _undefined;
+}, _undefined;
 ;
+    /* jshint unused:false */
     // this could be a simple map, but with this "compression" we save about 100 bytes, if minified (50 bytes, if also gzipped)
     var statusTextToCode = (function() {
         for(var group = arguments.length, map = {};group--;) {
@@ -19478,65 +19810,17 @@ module.exports = httpinvoke;
         'Bad Request,Unauthorized,Payment Required,Forbidden,Not Found,Method Not Allowed,Not Acceptable,Proxy Authentication Required,Request Timeout,Conflict,Gone,Length Required,Precondition Failed,Request Entity Too Large,Request-URI Too Long,Unsupported Media Type,Requested Range Not Satisfiable,Expectation Failed',
         'Internal Server Error,Not Implemented,Bad Gateway,Service Unavailable,Gateway Time-out,HTTP Version Not Supported'
     );
-    var bufferSlice = function(buffer, begin, end) {
-        if(begin === 0 && end === buffer.byteLength) {
-            return buffer;
-        }
-        return buffer.slice ? buffer.slice(begin, end) : new Uint8Array(Array.prototype.slice.call(new Uint8Array(buffer), begin, end)).buffer;
-    };
-    var responseBodyToBytes, responseBodyLength;
-    try {
-        execScript('Function httpinvoke0(B,A)\r\nDim i\r\nFor i=1 to LenB(B)\r\nA.push(AscB(MidB(B,i,1)))\r\nNext\r\nEnd Function\r\nFunction httpinvoke1(B)\r\nhttpinvoke1=LenB(B)\r\nEnd Function', 'vbscript');
-        responseBodyToBytes = function(binary) {
-            var bytes = [];
-            httpinvoke0(binary, bytes);
-            return bytes;
-        };
-        // cannot just assign the function, because httpinvoke1 is not a javascript 'function'
-        responseBodyLength = function(binary) {
-            return httpinvoke1(binary);
-        };
-    } catch(err) {
-    }
-    var getOutputText = function(xhr) {
-        return xhr.response || xhr.responseText;
-    };
-    var binaryStringToByteArray = function(str) {
-        for(var n = str.length, bytearray = new Array(n);n--;) {
-            bytearray[n] = str.charCodeAt(n) & 255;
+    var upgradeByteArray = global.Uint8Array ? function(array) {
+        return new Uint8Array(array);
+    } : pass;
+    var binaryStringToByteArray = function(str, bytearray) {
+        for(var i = bytearray.length; i < str.length;) {
+            /* jshint bitwise:false */
+            bytearray.push(str.charCodeAt(i++) & 255);
+            /* jshint bitwise:true */
         }
         return bytearray;
     };
-    var getOutputBinary = function(xhr) {
-        if('response' in xhr) {
-            return new Uint8Array(xhr.response || []);
-        }
-        // responseBody must be checked this way, because otherwise
-        // it is falsy and then accessing responseText for binary data
-        // results in the "c00ce514" error
-        if('responseBody' in xhr) {
-            return responseBodyToBytes(xhr.responseBody);
-        }
-        var bytearray = binaryStringToByteArray(xhr.responseText);
-        // firefox 4 supports typed arrays but not xhr2
-        return global.Uint8Array ? new global.Uint8Array(bytearray) : bytearray;
-    };
-    var getOutputLengthText = function(xhr) {
-        return countStringBytes(getOutputText(xhr));
-    };
-    var getOutputLengthBinary = function(xhr) {
-        if('response' in xhr) {
-            return xhr.response ? xhr.response.byteLength : 0;
-        }
-        // responseBody must be checked this way, because otherwise
-        // it is falsy and then accessing responseText for binary data
-        // results in the "c00ce514" error
-        if('responseBody' in xhr) {
-            return responseBodyLength(xhr.responseBody);
-        }
-        return xhr.responseText.length;
-    };
-
     var countStringBytes = function(string) {
         for(var c, n = 0, i = string.length;i--;) {
             c = string.charCodeAt(i);
@@ -19544,7 +19828,32 @@ module.exports = httpinvoke;
         }
         return n;
     };
-
+    var responseBodyToBytes, responseBodyLength;
+    try {
+        /* jshint evil:true */
+        execScript('Function httpinvoke0(B,A,C)\r\nDim i\r\nFor i=C to LenB(B)\r\nA.push(AscB(MidB(B,i,1)))\r\nNext\r\nEnd Function\r\nFunction httpinvoke1(B)\r\nhttpinvoke1=LenB(B)\r\nEnd Function', 'vbscript');
+        /* jshint evil:false */
+        responseBodyToBytes = function(binary, bytearray) {
+            // that vbscript counts from 1, not from 0
+            httpinvoke0(binary, bytearray, bytearray.length + 1);
+            return bytearray;
+        };
+        // cannot just assign the function, because httpinvoke1 is not a javascript 'function'
+        responseBodyLength = function(binary) {
+            return httpinvoke1(binary);
+        };
+    } catch(err) {
+    }
+    var responseByteArray = function(xhr, bytearray) {
+        // If response body has bytes out of printable ascii character range, then
+        // accessing xhr.responseText on Internet Explorer throws "Could not complete the operation due to error c00ce514".
+        // Therefore, try getting the bytearray from xhr.responseBody.
+        // Also responseBodyToBytes on some Internet Explorers is not defined, because of removed vbscript support.
+        return 'responseBody' in xhr && responseBodyToBytes ? responseBodyToBytes(xhr.responseBody, bytearray) : binaryStringToByteArray(xhr.responseText, bytearray);
+    };
+    var responseByteArrayLength = function(xhr) {
+        return 'responseBody' in xhr && responseBodyLength ? responseBodyLength(xhr.responseBody) : xhr.responseText.length;
+    };
     var fillOutputHeaders = function(xhr, outputHeaders) {
         var headers = xhr.getAllResponseHeaders().split(/\r?\n/);
         var atLeastOne = false;
@@ -19565,8 +19874,15 @@ module.exports = httpinvoke;
     };
     var createXHR;
     var httpinvoke = function(uri, method, options, cb) {
-        ;var mixInPromise, promise, failWithoutRequest, uploadProgressCb, inputLength, noData, timeout, inputHeaders, statusCb, initDownload, updateDownload, outputHeaders, exposedHeaders, status, outputBinary, input, outputLength, outputConverter;
+        /* jshint unused:true */
+        ;/* global httpinvoke, url, method, options, cb */
+/* global nextTick, mixInPromise, pass, progress, reject, resolve, supportedMethods, isArray, isArrayBufferView, isFormData, isByteArray, _undefined */
+/* global setTimeout */
+/* global crossDomain */// this one is a hack, because when in nodejs this is not really defined, but it is never needed
+/* jshint -W020 */
+var promise, failWithoutRequest, uploadProgressCb, downloadProgressCb, inputLength, inputHeaders, statusCb, outputHeaders, exposedHeaders, status, outputBinary, input, outputLength, outputConverter;
 /*************** COMMON initialize parameters **************/
+var downloadTimeout, uploadTimeout, timeout;
 if(!method) {
     // 1 argument
     // method, options, cb skipped
@@ -19606,75 +19922,21 @@ if(!method) {
     // 4 arguments
     options.finished = cb;
 }
-var safeCallback = function(name, aspect) {
-    if(name in options) {
-        return function(a, b, c, d) {
-            try {
-                options[name](a, b, c, d);
-            } catch(_) {
-            }
-            aspect(a, b, c, d);
-        };
-    }
-    return aspect;
-};
-var chain = function(a, b) {
-    a && a.then && a.then(function() {
-        b[resolve].apply(null, arguments);
-    }, function() {
-        b[reject].apply(null, arguments);
-    }, function() {
-        b[progress].apply(null, arguments);
-    });
-};
-var resolve = 0, reject = 1, progress = 2;
-mixInPromise = function(o) {
-    var value, queue = [], state = progress;
-    var makeState = function(newstate) {
-        o[newstate] = function(newvalue) {
-            var i, p;
-            if(queue) {
-                value = newvalue;
-                state = newstate;
-
-                for(i = 0; i < queue.length; i++) {
-                    if(typeof queue[i][state] === 'function') {
-                        try {
-                            p = queue[i][state].call(null, value);
-                            if(state < progress) {
-                                chain(p, queue[i]._);
-                            }
-                        } catch(err) {
-                            queue[i]._[reject](err);
-                        }
-                    } else if(state < progress) {
-                        queue[i]._[state](value);
-                    }
-                }
-                if(state < progress) {
-                    queue = null;
-                }
-            }
-        };
-    };
-    makeState(progress);
-    makeState(resolve);
-    makeState(reject);
-    o.then = function() {
-        var item = [].slice.call(arguments);
-        item._ = mixInPromise({});
-        if(queue) {
-            queue.push(item);
-        } else if(typeof item[state] === 'function') {
-            nextTick(function() {
-                chain(item[state](value), item._);
-            });
+var safeCallback = function(name, aspectBefore, aspectAfter) {
+    return function(a, b, c, d) {
+        aspectBefore(a, b, c, d);
+        try {
+            options[name](a, b, c, d);
+        } catch(_) {
         }
-        return item._;
+        aspectAfter(a, b, c, d);
     };
-    return o;
 };
 failWithoutRequest = function(cb, err) {
+    if(!(err instanceof Error)) {
+        // create error here, instead of nextTick, to preserve stack
+        err = new Error('Error code #' + err +'. See https://github.com/jakutis/httpinvoke#error-codes');
+    }
     nextTick(function() {
         if(cb === null) {
             return;
@@ -19686,28 +19948,42 @@ failWithoutRequest = function(cb, err) {
     return mixInPromise(promise);
 };
 
-uploadProgressCb = safeCallback('uploading', function(current, total) {
+uploadProgressCb = safeCallback('uploading', pass, function(current, total) {
     promise[progress]({
         type: 'upload',
         current: current,
         total: total
     });
 });
-var downloadProgressCb = safeCallback('downloading', function(current, total) {
+downloadProgressCb = safeCallback('downloading', pass, function(current, total, partial) {
     promise[progress]({
         type: 'download',
         current: current,
-        total: total
+        total: total,
+        partial: partial
     });
 });
-statusCb = safeCallback('gotStatus', function(statusCode, headers) {
+statusCb = safeCallback('gotStatus', function() {
+    statusCb = null;
+    if(downloadTimeout) {
+        setTimeout(function() {
+            if(cb) {
+                cb(new Error('download timeout'));
+                promise();
+            }
+        }, downloadTimeout);
+    }
+}, function(statusCode, headers) {
     promise[progress]({
         type: 'headers',
         statusCode: statusCode,
         headers: headers
     });
 });
-cb = safeCallback('finished', function(err, body, statusCode, headers) {
+cb = safeCallback('finished', function() {
+    cb = null;
+    promise();
+}, function(err, body, statusCode, headers) {
     if(err) {
         return promise[reject](err);
     }
@@ -19717,57 +19993,78 @@ cb = safeCallback('finished', function(err, body, statusCode, headers) {
         headers: headers
     });
 });
-timeout = options.timeout || 0;
+var fixPositiveOpt = function(opt) {
+    if(options[opt] === _undefined) {
+        options[opt] = 0;
+    } else if(typeof options[opt] === 'number') {
+        if(options[opt] < 0) {
+            return failWithoutRequest(cb, [1, opt]);
+        }
+    } else {
+        return failWithoutRequest(cb, [2, opt]);
+    }
+};
 var converters = options.converters || {};
 var inputConverter;
-inputLength = 0;
 inputHeaders = options.headers || {};
 outputHeaders = {};
 exposedHeaders = options.corsExposedHeaders || [];
-exposedHeaders.push.apply(exposedHeaders, ['Cache-Control', 'Content-Language', 'Content-Type', 'Content-Length', 'Expires', 'Last-Modified', 'Pragma', 'Content-Range']);
+exposedHeaders.push.apply(exposedHeaders, ['Cache-Control', 'Content-Language', 'Content-Type', 'Content-Length', 'Expires', 'Last-Modified', 'Pragma', 'Content-Range', 'Content-Encoding']);
 /*************** COMMON convert and validate parameters **************/
-if(method.indexOf(',') >= 0 || supportedMethods.indexOf(',' + method + ',') < 0) {
-    return failWithoutRequest(cb, new Error('Unsupported method ' + method));
+var partialOutputMode = options.partialOutputMode || 'disabled';
+if(partialOutputMode.indexOf(',') >= 0 || ',disabled,chunked,joined,'.indexOf(',' + partialOutputMode + ',') < 0) {
+    return failWithoutRequest(cb, [3]);
 }
-outputBinary = options.outputType === 'bytearray';
-if(!options.outputType || options.outputType === 'text' || outputBinary) {
+if(method.indexOf(',') >= 0 || supportedMethods.indexOf(',' + method + ',') < 0) {
+    return failWithoutRequest(cb, [4, method]);
+}
+var optionsOutputType = options.outputType;
+outputBinary = optionsOutputType === 'bytearray';
+if(!optionsOutputType || optionsOutputType === 'text' || outputBinary) {
     outputConverter = pass;
-} else if(converters['text ' + options.outputType]) {
-    outputConverter = converters['text ' + options.outputType];
+} else if(converters['text ' + optionsOutputType]) {
+    outputConverter = converters['text ' + optionsOutputType];
     outputBinary = false;
-} else if(converters['bytearray ' + options.outputType]) {
-    outputConverter = converters['bytearray ' + options.outputType];
+} else if(converters['bytearray ' + optionsOutputType]) {
+    outputConverter = converters['bytearray ' + optionsOutputType];
     outputBinary = true;
 } else {
-    return failWithoutRequest(cb, new Error('Unsupported outputType ' + options.outputType));
+    return failWithoutRequest(cb, [5, optionsOutputType]);
 }
 inputConverter = pass;
-if('input' in options) {
-    input = options.input;
-    if(!options.inputType || options.inputType === 'auto') {
-        if(typeof input !== 'string' && !isByteArray(input)) {
-            return failWithoutRequest(cb, new Error('inputType is undefined or auto and input is neither string, nor ' + bytearrayMessage));
+var optionsInputType = options.inputType;
+input = options.input;
+if(input !== _undefined) {
+    if(!optionsInputType || optionsInputType === 'auto') {
+        if(typeof input !== 'string' && !isByteArray(input) && !isFormData(input)) {
+            return failWithoutRequest(cb, [6]);
         }
-    } else if(options.inputType === 'text') {
+    } else if(optionsInputType === 'text') {
         if(typeof input !== 'string') {
-            return failWithoutRequest(cb, new Error('inputType is text, but input is not a string'));
+            return failWithoutRequest(cb, [7]);
         }
-    } else if (options.inputType === 'bytearray') {
+    } else if (optionsInputType === 'formdata') {
+        if(!isFormData(input)) {
+            return failWithoutRequest(cb, [8]);
+        }
+    } else if (optionsInputType === 'bytearray') {
         if(!isByteArray(input)) {
-            return failWithoutRequest(cb, new Error('inputType is bytearray, but input is neither ' + bytearrayMessage));
+            return failWithoutRequest(cb, [9]);
         }
-    } else if(converters[options.inputType + ' text']) {
-        inputConverter = converters[options.inputType + ' text'];
-    } else if(converters[options.inputType + ' bytearray']) {
-        inputConverter = converters[options.inputType + ' bytearray'];
+    } else if(converters[optionsInputType + ' text']) {
+        inputConverter = converters[optionsInputType + ' text'];
+    } else if(converters[optionsInputType + ' bytearray']) {
+        inputConverter = converters[optionsInputType + ' bytearray'];
+    } else if(converters[optionsInputType + ' formdata']) {
+        inputConverter = converters[optionsInputType + ' formdata'];
     } else {
-        return failWithoutRequest(cb, new Error('There is no converter for specified inputType'));
+        return failWithoutRequest(cb, [10, optionsInputType]);
     }
-    if(typeof input === 'object') {
-        if(global.ArrayBuffer && input instanceof ArrayBuffer) {
-            input = new Uint8Array(input);
+    if(typeof input === 'object' && !isFormData(input)) {
+        if(global.ArrayBuffer && input instanceof global.ArrayBuffer) {
+            input = new global.Uint8Array(input);
         } else if(isArrayBufferView(input)) {
-            input = new Uint8Array(input.buffer, input.byteOffset, input.byteLength);
+            input = new global.Uint8Array(input.buffer, input.byteOffset, input.byteLength);
         }
     }
     try {
@@ -19776,39 +20073,68 @@ if('input' in options) {
         return failWithoutRequest(cb, err);
     }
 } else {
-    if(options.inputType) {
-        return failWithoutRequest(cb, new Error('"input" is undefined, but inputType is defined'));
+    if(optionsInputType && optionsInputType !== 'auto') {
+        return failWithoutRequest(cb, [11]);
     }
     if(inputHeaders['Content-Type']) {
-        return failWithoutRequest(cb, new Error('"input" is undefined, but Content-Type request header is defined'));
+        return failWithoutRequest(cb, [12]);
     }
 }
+var isValidTimeout = function(timeout) {
+    return timeout > 0 && timeout < 1073741824;
+};
+var optionsTimeout = options.timeout;
+if(optionsTimeout !== _undefined) {
+    if(typeof optionsTimeout === 'number' && isValidTimeout(optionsTimeout)) {
+        timeout = optionsTimeout;
+    } else if(isArray(optionsTimeout) && optionsTimeout.length === 2 && isValidTimeout(optionsTimeout[0]) && isValidTimeout(optionsTimeout[1])) {
+        if(httpinvoke.corsFineGrainedTimeouts || !crossDomain) {
+            uploadTimeout = optionsTimeout[0];
+            downloadTimeout = optionsTimeout[1];
+        } else {
+            timeout = optionsTimeout[0] + optionsTimeout[1];
+        }
+    } else {
+        return failWithoutRequest(cb, [13]);
+    }
+}
+if(uploadTimeout) {
+    setTimeout(function() {
+        if(statusCb) {
+            cb(new Error('upload timeout'));
+            promise();
+        }
+    }, uploadTimeout);
+}
+if(timeout) {
+    setTimeout(function() {
+        if(cb) {
+            cb(new Error('timeout'));
+            promise();
+        }
+    }, timeout);
+}
 
-/*************** COMMON initialize helper variables **************/
-var downloaded;
-initDownload = function(total) {
-    if(typeof outputLength === 'undefined') {
-        downloadProgressCb(downloaded, outputLength = total);
-    }
-};
-updateDownload = function(value) {
-    if(value !== downloaded) {
-        downloadProgressCb(downloaded = value, outputLength);
-    }
-};
-noData = function() {
-    initDownload(0);
-    if(cb) {
-        cb(null, _undefined, status, outputHeaders);
-        cb = null;
-    }
-};
 ;
+        /* jshint unused:false */
         /*************** initialize helper variables **************/
         var xhr, i, j, currentLocation, crossDomain, output,
-            getOutput = outputBinary ? getOutputBinary : getOutputText,
-            getOutputLength = outputBinary ? getOutputLengthBinary : getOutputLengthText,
-            uploadProgressCbCalled = false;
+            uploadProgressCbCalled = false,
+            partialPosition = 0,
+            partialBuffer = partialOutputMode === 'disabled' ? _undefined : (outputBinary ? [] : ''),
+            partial = partialBuffer,
+            partialUpdate = function() {
+                if(partialOutputMode === 'disabled') {
+                    return;
+                }
+                if(outputBinary) {
+                    responseByteArray(xhr, partialBuffer);
+                } else {
+                    partialBuffer = xhr.responseText;
+                }
+                partial = partialOutputMode === 'joined' ? partialBuffer : partialBuffer.slice(partialPosition);
+                partialPosition = partialBuffer.length;
+            };
         var uploadProgress = function(uploaded) {
             if(!uploadProgressCb) {
                 return;
@@ -19838,31 +20164,28 @@ noData = function() {
         }
         crossDomain = isCrossDomain(currentLocation, uri);
         /*************** start XHR **************/
-        if(typeof input === 'object' && httpinvoke.requestTextOnly) {
-            return failWithoutRequest(cb, new Error('bytearray inputType is not supported on this platform, please always test using requestTextOnly feature flag'));
+        if(typeof input === 'object' && !isFormData(input) && httpinvoke.requestTextOnly) {
+            return failWithoutRequest(cb, [17]);
         }
         if(crossDomain && !httpinvoke.cors) {
-            return failWithoutRequest(cb, new Error('Cross-origin requests are not supported'));
+            return failWithoutRequest(cb, [18]);
         }
         for(j = ['DELETE', 'PATCH', 'PUT', 'HEAD'], i = j.length;i-- > 0;) {
             if(crossDomain && method === j[i] && !httpinvoke['cors' + j[i]]) {
-                return failWithoutRequest(cb, new Error(j[i] + ' method in cross-origin requests is not supported in this browser'));
+                return failWithoutRequest(cb, [19, method]);
             }
+        }
+        if(method === 'PATCH' && !httpinvoke.PATCH) {
+            return failWithoutRequest(cb, [20]);
         }
         if(!createXHR) {
-            return failWithoutRequest(cb, new Error('unable to construct XMLHttpRequest object'));
+            return failWithoutRequest(cb, [21]);
         }
         xhr = createXHR(crossDomain);
-        xhr.open(method, uri, true);
-        if(timeout > 0) {
-            if('timeout' in xhr) {
-                xhr.timeout = timeout;
-            } else {
-                setTimeout(function() {
-                    cb(new Error('download timeout'));
-                    cb = null;
-                }, timeout);
-            }
+        try {
+            xhr.open(method, uri, true);
+        } catch(e) {
+            return failWithoutRequest(cb, [22, uri]);
         }
         if(options.corsCredentials && httpinvoke.corsCredentials && typeof xhr.withCredentials === 'boolean') {
             xhr.withCredentials = true;
@@ -19879,80 +20202,65 @@ noData = function() {
         }
 
         /*************** bind XHR event listeners **************/
-        var makeErrorCb = function(message) {
-            return function() {
-                // must check, because some callbacks are called synchronously, thus throwing exceptions and breaking code
-                if(cb) {
-                    cb(new Error(message));
-                    cb = null;
-                }
-            };
-        };
         var onuploadprogress = function(progressEvent) {
             if(cb && progressEvent.lengthComputable) {
-                uploadProgress(progressEvent.loaded);
+                if(inputLength === _undefined) {
+                    inputLength = progressEvent.total || progressEvent.totalSize || 0;
+                    uploadProgress(0);
+                }
+                uploadProgress(progressEvent.loaded || progressEvent.position || 0);
             }
         };
         if('upload' in xhr) {
-            xhr.upload.ontimeout = makeErrorCb('upload timeout');
-            xhr.upload.onerror = makeErrorCb('upload error');
+            xhr.upload.onerror = function() {
+                received.error = true;
+                // must check, because some callbacks are called synchronously, thus throwing exceptions and breaking code
+                /* jshint expr:true */
+                cb && cb(new Error('network error'));
+                /* jshint expr:false */
+            };
             xhr.upload.onprogress = onuploadprogress;
         } else if('onuploadprogress' in xhr) {
             xhr.onuploadprogress = onuploadprogress;
         }
 
-        if('ontimeout' in xhr) {
-            xhr.ontimeout = makeErrorCb('download timeout');
-        }
         if('onerror' in xhr) {
             xhr.onerror = function() {
+                received.error = true;
                 //inspect('onerror', arguments[0]);
                 //dbg('onerror');
                 // For 4XX and 5XX response codes Firefox 3.6 cross-origin request ends up here, but has correct statusText, but no status and headers
                 onLoad();
             };
         }
+        var ondownloadprogress = function(progressEvent) {
+            onHeadersReceived(false);
+            // There is a bug in Chrome 10 on 206 response with Content-Range=0-4/12 - total must be 5
+            // 'total', 12, 'totalSize', 12, 'loaded', 5, 'position', 5, 'lengthComputable', true, 'status', 206
+            // console.log('total', progressEvent.total, 'totalSize', progressEvent.totalSize, 'loaded', progressEvent.loaded, 'position', progressEvent.position, 'lengthComputable', progressEvent.lengthComputable, 'status', status);
+            // httpinvoke does not work around this bug, because Chrome 10 is practically not used at all, as Chrome agressively auto-updates itself to latest version
+            try {
+                var current = progressEvent.loaded || progressEvent.position || 0;
+                if(progressEvent.lengthComputable) {
+                    outputLength = progressEvent.total || progressEvent.totalSize || 0;
+                }
+
+                // Opera 12 progress events has a bug - .loaded can be higher than .total
+                // see http://dev.opera.com/articles/view/xhr2/#comment-96081222
+                /* jshint expr:true */
+                cb && current <= outputLength && !statusCb && (partialUpdate(), downloadProgressCb(current, outputLength, partial));
+                /* jshint expr:false */
+            } catch(_) {
+            }
+        };
         if('onloadstart' in xhr) {
-            xhr.onloadstart = function() {
-                //dbg('onloadstart');
-                onHeadersReceived(false);
-            };
+            xhr.onloadstart = ondownloadprogress;
         }
         if('onloadend' in xhr) {
-            xhr.onloadend = function() {
-                //dbg('onloadend');
-                onHeadersReceived(false);
-            };
+            xhr.onloadend = ondownloadprogress;
         }
         if('onprogress' in xhr) {
-            xhr.onprogress = function(progressEvent) {
-                //dbg('onprogress');
-                if(!cb) {
-                    return;
-                }
-                onHeadersReceived(false);
-                if(statusCb) {
-                    return;
-                }
-                // There is a bug in Chrome 10 on 206 response with Content-Range=0-4/12 - total must be 5
-                // 'total', 12, 'totalSize', 12, 'loaded', 5, 'position', 5, 'lengthComputable', true, 'status', 206
-                // console.log('total', progressEvent.total, 'totalSize', progressEvent.totalSize, 'loaded', progressEvent.loaded, 'position', progressEvent.position, 'lengthComputable', progressEvent.lengthComputable, 'status', status);
-                // httpinvoke does not work around this bug, because Chrome 10 is practically not used at all, as Chrome agressively auto-updates itself to latest version
-                var total = progressEvent.total || progressEvent.totalSize || 0,
-                    current = progressEvent.loaded || progressEvent.position || 0;
-                if(progressEvent.lengthComputable) {
-                    initDownload(total);
-                }
-                if(!cb) {
-                    return;
-                }
-                if(current > total) {
-                    // Opera 12 progress events has a bug - .loaded can be higher than .total
-                    // see http://dev.opera.com/articles/view/xhr2/#comment-96081222
-                    return;
-                }
-                updateDownload(current);
-            };
+            xhr.onprogress = ondownloadprogress;
         }
         /*
         var inspect = function(name, obj) {
@@ -19981,17 +20289,9 @@ noData = function() {
             }
         };
         */
-        var received = {
-            success: false,
-            status: false,
-            entity: false,
-            headers: false
-        };
-        var onHeadersReceived = function(lastTry) {
-            if(!cb) {
-                return;
-            }
-
+        var received = {};
+        var mustBeIdentity;
+        var tryHeadersAndStatus = function(lastTry) {
             try {
                 if(xhr.status) {
                     received.status = true;
@@ -20016,13 +20316,19 @@ noData = function() {
                 }
             } catch(_) {
             }
+            try {
+                if(responseBodyLength(xhr.responseBody)) {
+                    received.entity = true;
+                }
+            } catch(_) {
+            }
 
             if(!statusCb) {
                 return;
             }
 
             if(received.status || received.entity || received.success || lastTry) {
-                if(typeof xhr.contentType === 'string') {
+                if(typeof xhr.contentType === 'string' && xhr.contentType) {
                     if(xhr.contentType !== 'text/html' || xhr.responseText !== '') {
                         // When no entity body and/or no Content-Type header is sent,
                         // XDomainRequest on IE-8 defaults to text/html xhr.contentType.
@@ -20031,10 +20337,12 @@ noData = function() {
                         received.headers = true;
                     }
                 }
-                for(var i = 0; i < exposedHeaders.length; i += 1) {
+                for(var i = 0; i < exposedHeaders.length; i++) {
                     var header;
                     try {
+                        /* jshint boss:true */
                         if(header = xhr.getResponseHeader(exposedHeaders[i])) {
+                        /* jshint boss:false */
                             outputHeaders[exposedHeaders[i].toLowerCase()] = header;
                             received.headers = true;
                         }
@@ -20047,6 +20355,11 @@ noData = function() {
                         received.headers = true;
                     }
                 } catch(err) {
+                }
+
+                mustBeIdentity = outputHeaders['content-encoding'] === 'identity' || (!crossDomain && !outputHeaders['content-encoding']);
+                if(mustBeIdentity && 'content-length' in outputHeaders) {
+                    outputLength = Number(outputHeaders['content-length']);
                 }
 
                 if(!status && (!crossDomain || httpinvoke.corsStatus)) {
@@ -20067,38 +20380,49 @@ noData = function() {
                     if(status === 1223) {
                         status = 204;
                     }
+                    // IE (at least version 6) returns various detailed network
+                    // connection error codes (concretely - WinInet Error Codes).
+                    // For references of their meaning, see http://support.microsoft.com/kb/193625
+                    if(status >= 12001 && status <= 12156) {
+                        status = _undefined;
+                    }
                 }
             }
-
-            if(!lastTry && !(received.status && received.headers)) {
+        };
+        var onHeadersReceived = function(lastTry) {
+            if(!cb) {
                 return;
             }
 
+            if(!lastTry) {
+                tryHeadersAndStatus(false);
+            }
+
+            if(!statusCb || (!lastTry && !(received.status && received.headers))) {
+                return;
+            }
+
+            if(inputLength === _undefined) {
+                inputLength = 0;
+                uploadProgress(0);
+            }
             uploadProgress(inputLength);
             if(!cb) {
                 return;
             }
 
             statusCb(status, outputHeaders);
-            statusCb = null;
             if(!cb) {
                 return;
             }
 
+            downloadProgressCb(0, outputLength, partial);
+            if(!cb) {
+                return;
+            }
             if(method === 'HEAD') {
-                return noData();
-            }
-
-            updateDownload(0);
-            if(!cb) {
-                return;
-            }
-
-            if('content-length' in outputHeaders && (!crossDomain || 'content-encoding' in outputHeaders) && (!outputHeaders['content-encoding'] || outputHeaders['content-encoding'] === 'identity')) {
-                initDownload(Number(outputHeaders['content-length']));
-                if(!cb) {
-                    return;
-                }
+                downloadProgressCb(0, 0, partial);
+                return cb && cb(null, _undefined, status, outputHeaders);
             }
         };
         var onLoad = function() {
@@ -20106,57 +20430,99 @@ noData = function() {
                 return;
             }
 
+            tryHeadersAndStatus(true);
+
+            var length;
+            try {
+                length =
+                    partialOutputMode !== 'disabled' ?
+                    responseByteArrayLength(xhr) :
+                    (
+                        outputBinary ?
+                        (
+                            'response' in xhr ?
+                            (
+                                xhr.response ?
+                                xhr.response.byteLength :
+                                0
+                            ) :
+                            responseByteArrayLength(xhr)
+                        ) :
+                        countStringBytes(xhr.responseText)
+                    );
+            } catch(_) {
+                length = 0;
+            }
+            if(outputLength !== _undefined) {
+                if(mustBeIdentity) {
+                    if(length !== outputLength && method !== 'HEAD') {
+                        return cb(new Error('network error'));
+                    }
+                } else {
+                    if(received.error) {
+                        return cb(new Error('network error'));
+                    }
+                }
+            } else {
+                outputLength = length;
+            }
+
+            var noentity = !received.entity && outputLength === 0 && outputHeaders['content-type'] === _undefined;
+
+            if((noentity && status === 200) || (!received.success && !status && (received.error || ('onreadystatechange' in xhr && !received.readyStateLOADING)))) {
+                /*
+                 * Note: on Opera 10.50, TODO there is absolutely no difference
+                 * between a non 2XX response and an immediate socket closing on
+                 * server side - both give no headers, no status, no entity, and
+                 * end up in 'onload' event. Thus some network errors will end
+                 * up calling "finished" without Error.
+                 */
+                return cb(new Error('network error'));
+            }
+
             onHeadersReceived(true);
             if(!cb) {
                 return;
             }
 
-            if(!received.success && !status) {
-                // 'finished in onerror and status code is undefined'
-                cb(new Error('download error'));
-                cb = null;
-                return;
+            if(noentity) {
+                downloadProgressCb(0, 0, partial);
+                return cb(null, _undefined, status, outputHeaders);
             }
 
-            var length;
-            try {
-                length = getOutputLength(xhr);
-            } catch(_) {
-                return noData();
-            }
-            if(!outputLength) {
-                initDownload(length);
-            } else if(length !== outputLength) {
-                // 'output length ' + outputLength + ' is not equal to actually received entity length ' + length
-                cb(new Error('download error'));
-                cb = null;
-            }
-            if(!cb) {
-                return;
-            }
-
-            updateDownload(outputLength);
+            partialUpdate();
+            downloadProgressCb(outputLength, outputLength, partial);
             if(!cb) {
                 return;
             }
 
             try {
-                cb(null, !received.entity && outputLength === 0 && typeof outputHeaders['content-type'] === 'undefined' ? _undefined : outputConverter(getOutput(xhr)), status, outputHeaders);
+                // If XHR2 (there is xhr.response), then there must also be Uint8Array.
+                // But Uint8Array might exist even if not XHR2 (on Firefox 4).
+                cb(null, outputConverter(
+                    partialBuffer || (
+                        outputBinary ?
+                        upgradeByteArray(
+                            'response' in xhr ?
+                            xhr.response || [] :
+                            responseByteArray(xhr, [])
+                        ) :
+                        xhr.responseText
+                    )
+                ), status, outputHeaders);
             } catch(err) {
                 cb(err);
             }
-            cb = null;
         };
-        var onloadBound = false;
-        if(typeof xhr.onload !== 'undefined') {
-            onloadBound = true;
+        var onloadBound = 'onload' in xhr;
+        if(onloadBound) {
             xhr.onload = function() {
                 received.success = true;
                 //dbg('onload');
                 onLoad();
             };
         }
-        if(typeof xhr.onreadystatechange !== 'undefined') {
+        if('onreadystatechange' in xhr) {
             xhr.onreadystatechange = function() {
                 //dbg('onreadystatechange ' + xhr.readyState);
                 if(xhr.readyState === 2) {
@@ -20164,15 +20530,8 @@ noData = function() {
                     onHeadersReceived(false);
                 } else if(xhr.readyState === 3) {
                     // LOADING
-                    received.success = true;
+                    received.readyStateLOADING = true;
                     onHeadersReceived(false);
-                    if(statusCb) {
-                        return;
-                    }
-                    try {
-                        updateDownload(getOutputLength(xhr));
-                    } catch(err) {
-                    }
                 // Instead of 'typeof xhr.onload === "undefined"', we must use
                 // onloadBound variable, because otherwise Firefox 3.5 synchronously
                 // throws a "Permission denied for <> to create wrapper for
@@ -20191,7 +20550,7 @@ noData = function() {
                     try {
                         xhr.setRequestHeader(inputHeaderName, inputHeaders[inputHeaderName]);
                     } catch(err) {
-                        return failWithoutRequest(cb, err);
+                        return failWithoutRequest(cb, [23, inputHeaderName]);
                     }
                 }
             }
@@ -20201,21 +20560,24 @@ noData = function() {
             if(!cb) {
                 return;
             }
-            if('response' in xhr) {
+            if(outputBinary) {
                 try {
-                    xhr.responseType = outputBinary ? 'arraybuffer' : 'text';
-                } catch(err) {
-                }
-            } else {
-                try {
-                    // mime type override must be done before receiving headers - at least for Safari 5.0.4
-                    if(outputBinary) {
+                    if(partialOutputMode === 'disabled' && 'response' in xhr) {
+                        xhr.responseType = 'arraybuffer';
+                    } else {
+                        // mime type override must be done before receiving headers - at least for Safari 5.0.4
                         xhr.overrideMimeType('text/plain; charset=x-user-defined');
                     }
-                } catch(err) {
+                } catch(_) {
                 }
             }
-            if(typeof input === 'object') {
+            if(isFormData(input)) {
+                try {
+                    xhr.send(input);
+                } catch(err) {
+                    return failWithoutRequest(cb, [24]);
+                }
+            } else if(typeof input === 'object') {
                 var triedSendArrayBufferView = false;
                 var triedSendBlob = false;
                 var triedSendBinaryString = false;
@@ -20240,7 +20602,7 @@ noData = function() {
                 var go = function() {
                     var reader;
                     if(triedSendBlob && triedSendArrayBufferView && triedSendBinaryString) {
-                        return failWithoutRequest(cb, new Error('Unable to send'));
+                        return failWithoutRequest(cb, [24]);
                     }
                     if(isArrayBufferView(input)) {
                         if(triedSendArrayBufferView) {
@@ -20254,14 +20616,26 @@ noData = function() {
                                 toBlob();
                             }
                         } else {
+                            inputLength = input.byteLength;
                             try {
-                                inputLength = input.byteLength;
                                 // if there is ArrayBufferView, then the browser supports sending instances of subclasses of ArayBufferView, otherwise we must send an ArrayBuffer
-                                xhr.send(global.ArrayBufferView ? input : bufferSlice(input.buffer, input.byteOffset, input.byteOffset + input.byteLength));
+                                xhr.send(
+                                    global.ArrayBufferView ?
+                                    input :
+                                    (
+                                        input.byteOffset === 0 && input.length === input.buffer.byteLength ?
+                                        input.buffer :
+                                        (
+                                            input.buffer.slice ?
+                                            input.buffer.slice(input.byteOffset, input.byteOffset + input.length) :
+                                            new Uint8Array([].slice.call(new Uint8Array(input.buffer), input.byteOffset, input.byteOffset + input.length)).buffer
+                                        )
+                                    )
+                                );
                                 return;
                             } catch(_) {
-                                triedSendArrayBufferView = true;
                             }
+                            triedSendArrayBufferView = true;
                         }
                     } else if(global.Blob && input instanceof Blob) {
                         if(triedSendBlob) {
@@ -20315,7 +20689,7 @@ noData = function() {
                         if(triedSendBinaryString) {
                             if(!triedSendArrayBufferView) {
                                 try {
-                                    input = binaryStringToByteArray(input);
+                                    input = binaryStringToByteArray(input, []);
                                 } catch(_) {
                                     triedSendArrayBufferView = true;
                                 }
@@ -20335,34 +20709,28 @@ noData = function() {
                     nextTick(go);
                 };
                 go();
+                uploadProgress(0);
             } else {
                 try {
                     if(typeof input === 'string') {
                         inputLength = countStringBytes(input);
                         xhr.send(input);
                     } else {
+                        inputLength = 0;
                         xhr.send(null);
                     }
                 } catch(err) {
-                    var _cb = cb;
-                    cb = null;
-                    return failWithoutRequest(cb, new Error('Unable to send'));
+                    return failWithoutRequest(cb, [24]);
                 }
+                uploadProgress(0);
             }
-            uploadProgress(0);
         });
 
         /*************** return "abort" function **************/
         promise = function() {
-            if(!cb) {
-                return;
-            }
-
-            // these statements are in case "abort" is called in "finished" callback
-            var _cb = cb;
-            cb = null;
-            _cb(new Error('abort'));
-
+            /* jshint expr:true */
+            cb && cb(new Error('abort'));
+            /* jshint expr:false */
             try {
                 xhr.abort();
             } catch(err){
@@ -20380,6 +20748,7 @@ noData = function() {
     httpinvoke.corsPUT = false;
     httpinvoke.corsStatus = false;
     httpinvoke.corsResponseTextOnly = false;
+    httpinvoke.corsFineGrainedTimeouts = true;
     httpinvoke.requestTextOnly = false;
     (function() {
         try {
@@ -20387,7 +20756,7 @@ noData = function() {
                 return new XMLHttpRequest();
             };
             var tmpxhr = createXHR();
-            httpinvoke.requestTextOnly = typeof Uint8Array === 'undefined' && typeof tmpxhr.sendAsBinary === 'undefined';
+            httpinvoke.requestTextOnly = !global.Uint8Array && !tmpxhr.sendAsBinary;
             httpinvoke.cors = 'withCredentials' in tmpxhr;
             if(httpinvoke.cors) {
                 httpinvoke.corsRequestHeaders = true;
@@ -20402,7 +20771,7 @@ noData = function() {
         } catch(err) {
         }
         try {
-            if(typeof XDomainRequest === 'undefined') {
+            if(global.XDomainRequest === _undefined) {
                 createXHR = function() {
                     return new XMLHttpRequest();
                 };
@@ -20415,6 +20784,7 @@ noData = function() {
                 httpinvoke.cors = true;
                 httpinvoke.corsResponseContentTypeOnly = true;
                 httpinvoke.corsResponseTextOnly = true;
+                httpinvoke.corsFineGrainedTimeouts = false;
             }
             return;
         } catch(err) {
@@ -20427,22 +20797,32 @@ noData = function() {
         var candidates = ['Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.6.0', 'Msxml2.XMLHTTP.3.0', 'Msxml2.XMLHTTP'];
         for(var i = candidates.length; i--;) {
             try {
+                /* jshint loopfunc:true */
                 createXHR = function() {
                     return new ActiveXObject(candidates[i]);
                 };
+                /* jshint loopfunc:true */
                 createXHR();
                 httpinvoke.requestTextOnly = true;
                 return;
             } catch(err) {
             }
-            i -= 1;
         }
         createXHR = _undefined;
     })();
+    httpinvoke.PATCH = !!(function() {
+        try {
+            createXHR().open('PATCH', location.href, true);
+            return 1;
+        } catch(_) {
+        }
+    })();
 
     return httpinvoke;
-}));
+})
+));
 ;
+/* jshint unused:false */
 }
 
 },{}],20:[function(require,module,exports){
@@ -20656,70 +21036,7 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
   module.exports = function(fn){ setTimeout(fn, 0) }
 }
 
-},{"__browserify_process":18}],23:[function(require,module,exports){
-module.exports={
-  "name": "imjs",
-  "version": "3.0.0-beta",
-  "description": "Client library for communication with InterMine web-services",
-  "main": "js/index",
-  "keywords": [
-    "javascript",
-    "webservice",
-    "InterMine",
-    "Bio-Informatics"
-  ],
-  "author": {
-    "name": "Alex Kalderimis",
-    "email": "alex@intermine.org",
-    "twitter": "alexkalderimis"
-  },
-  "license": "LGPL",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/alexkalderimis/imjs.git"
-  },
-  "dependencies": {
-    "JSONStream": "~0.7.1",
-    "promise": "~3.2.0",
-    "xmldom": "~0.1.16"
-  },
-  "engines": {
-    "node": ">= 0.8.0"
-  },
-  "directories": {
-    "tests": "test"
-  },
-  "scripts": {
-    "prepublish": "make",
-    "test": "make test"
-  },
-  "devDependencies": {
-    "bower": "latest",
-    "codo": "~1.6.0",
-    "coffee-script": "~1.3.3",
-    "grunt": "~0.4.1",
-    "grunt-browserify": "~1.2.11",
-    "grunt-bump": "0.0.11",
-    "grunt-cli": "~0.1.11",
-    "grunt-coffeelint": "0.0.7",
-    "grunt-contrib-clean": "~0.5.0",
-    "grunt-contrib-concat": "~0.3.0",
-    "grunt-contrib-copy": "~0.4.1",
-    "grunt-contrib-jshint": "~0.7.1",
-    "grunt-contrib-symlink": "~0.2.0",
-    "grunt-contrib-uglify": "~0.2.7",
-    "grunt-mocha-phantomjs": "~0.3.1",
-    "grunt-simple-mocha": "~0.4.0",
-    "httpinvoke": "~1.0.4",
-    "mocha": "latest",
-    "oboe": "~1.11.0",
-    "should": "latest",
-    "coffeeify": "~0.5.2",
-    "grunt-jscoverage": "0.0.3"
-  }
-}
-
-},{}]},{},[11])
+},{"__browserify_process":18}]},{},[11])
 (11)
 });
 ;;(function() {
@@ -21416,13 +21733,6 @@ module.exports={
       					</li> \
       				<% }) %> \
       				</ul>';
-    });
-
-    
-    // mineStatus.js
-    root.require.register('MyFirstCommonJSApp/src/templates/mineStatus.js', function(exports, require, module) {
-    
-      module.exports = '<span class="mineStatus"> <div class="loading-spinner"></div>Loading: <%= name %></span>';
     });
 
     

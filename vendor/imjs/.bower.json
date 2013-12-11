@@ -1,6 +1,6 @@
 {
   "name": "imjs",
-  "version": "3.0.0-beta-4",
+  "version": "3.0.0-rc1",
   "description": "Client library for communication with InterMine web-services",
   "main": "js/im.js",
   "dependencies": {},
@@ -29,13 +29,13 @@
     "TODO"
   ],
   "homepage": "https://github.com/intermine/imjs",
-  "_release": "3.0.0-beta-4",
+  "_release": "3.0.0-rc1",
   "_resolution": {
     "type": "version",
-    "tag": "v3.0.0-beta-4",
-    "commit": "8dfc6085c600fcc00e5b99d587cd2d48e396f170"
+    "tag": "v3.0.0-rc1",
+    "commit": "a4b0d93b22c26a618177d2591d455b9e3b7030f0"
   },
   "_source": "git://github.com/intermine/imjs.git",
-  "_target": "3.0.0-beta-4",
+  "_target": "3.0.0-rc1",
   "_originalSource": "imjs"
 }

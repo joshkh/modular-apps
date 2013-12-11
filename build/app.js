@@ -695,13 +695,6 @@
     });
 
     
-    // mineStatus.js
-    root.require.register('MyFirstCommonJSApp/src/templates/mineStatus.js', function(exports, require, module) {
-    
-      module.exports = '<span class="mineStatus"> <div class="loading-spinner"></div>Loading: <%= name %></span>';
-    });
-
-    
     // pathwaycell.js
     root.require.register('MyFirstCommonJSApp/src/templates/pathwaycell.js', function(exports, require, module) {
     
