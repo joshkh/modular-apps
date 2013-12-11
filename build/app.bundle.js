@@ -21817,7 +21817,7 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
         var pwayCollection = require('../models/pathwaycollection');
         var TableView = require("./tableview");
         var TableViewHeaders = require("./tableviewheaders");
-        var MineStatusView = require("./statusview");
+      
         var DataPaneView = require("./datapaneview");
         var Globals = require('../modules/globals');
         var $ = require('../modules/dependencies').$;
@@ -21881,7 +21881,6 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       
           notifyQueryStatus: function(value) {
       
-            statView = new MineStatusView({name: "TEST"});
           //this.$el.find('#statusBar').append(statView.el);
            
           },

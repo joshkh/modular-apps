@@ -4,7 +4,7 @@
   var pwayCollection = require('../models/pathwaycollection');
   var TableView = require("./tableview");
   var TableViewHeaders = require("./tableviewheaders");
-  var MineStatusView = require("./statusview");
+
   var DataPaneView = require("./datapaneview");
   var Globals = require('../modules/globals');
   var $ = require('../modules/dependencies').$;
@@ -68,7 +68,6 @@
 
     notifyQueryStatus: function(value) {
 
-      statView = new MineStatusView({name: "TEST"});
     //this.$el.find('#statusBar').append(statView.el);
      
     },
