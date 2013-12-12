@@ -25,7 +25,7 @@ module.exports = '<div class="innerDetailsContainer"> \
 	<ul> \
 		<% _.each(pway.datasets, function(dataset) { %> \
 			<li> \
-				<%= "<a href=http://" + pway.organism[0].genes[0].url + "/report.do?id=" + dataset.objectId + ">" %> \
+				<%= "<a href=http:://" + pway.organism[0].genes[0].url + "/report.do?id=" + dataset.objectId + ">" %> \
 				<%= dataset.name %> \
 				</a> \
 			</li> \

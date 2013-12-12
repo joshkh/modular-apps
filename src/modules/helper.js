@@ -76,7 +76,7 @@ var mediator = require('./mediator');
 
       /** Return an IMJS service. **/
       getService = function (aUrl) {
-        //console.log("getService has been called");
+        console.log("getService has been called in getPathwaysByGene");
         return new IM.Service({root: aUrl});
       };
 
@@ -92,7 +92,6 @@ var mediator = require('./mediator');
 
         return function(pways) {
 
-          //console.log("------------------------MAKE MODELS");
           _.map(pways, function(pathway) {
             pathway.url = url;
            
@@ -109,12 +108,12 @@ var mediator = require('./mediator');
 
       // Return our error
       error = function(err) {
-       // console.log("I have failed in getPathwaysByGene");
-        throw new Error("HELP ME");
+        console.log("I have failed in getPathways, ", err);
+        throw new Error(err);
       };
 
       // Wait for our results and then return them.
-      return Q(getService(url)).then(getData).then(makeModels());
+      return Q(getService(url)).then(getData).then(makeModels()).fail(error);
 
     } // End function getPathwaysByGene
 
@@ -132,12 +131,11 @@ var getHomologues = function(pIdentifier, url) {
 
     // Build our query:
     var query = {"select":["Homologue.homologue.primaryIdentifier", "Homologue.homologue.symbol"],"orderBy":[{"Homologue.homologue.primaryIdentifier":"ASC"}],"where":[{"path":"Homologue.gene","op":"LOOKUP","value":pIdentifier}]};
-    //var selfQuery = {"model":{"name":"genomic"},"select":["Gene.primaryIdentifier"],"orderBy":[{"Gene.primaryIdentifier":"ASC"}],"where":[{"path":"Gene.primaryIdentifier","op":"=","code":"A","value":pIdentifier}]};
 
     // Get our service.
     getService = function (aUrl) {
 
-      //console.log("building service");
+      console.log("building service");
       return new IM.Service({root: aUrl});
 
 
@@ -145,14 +143,15 @@ var getHomologues = function(pIdentifier, url) {
 
     // Run our query.
     getData = function (aService) {
-        //console.log("getHomologues detData called.");
-        return aService.records(query);
+        console.log("getHomologues detData called with query: ", JSON.stringify(query, null, 2));
+        var aValue = aService.records(query);
+        console.log(aValue);
+        return aValue;
     };
 
     // Deal with our results.
     returnResults = function () {
 
-      //console.log("Returning results.");
       
       return function (orgs) {
 
@@ -160,6 +159,7 @@ var getHomologues = function(pIdentifier, url) {
         var values = orgs.map(function(o) {
           return o.homologue
         });
+
 
         // Create a 'fake' gene that represents the primary identifier and add it to our results
         var selfObject = new Object();
@@ -169,7 +169,7 @@ var getHomologues = function(pIdentifier, url) {
 
         luString = values.map(function(gene) {return gene.primaryIdentifier}).join(',');
         _.each(values, function(gene) {
-           //console.log(gene.primaryIdentifier);
+           console.log(gene.primaryIdentifier);
         });
         console.log("luString" + luString);
 
@@ -178,7 +178,6 @@ var getHomologues = function(pIdentifier, url) {
     }
     function error (err) {
           console.log("I have failed in getHomologues.", err);
-          //mediator.trigger('notify:minefail', {url: url});
           throw new Error(err);
     }
 

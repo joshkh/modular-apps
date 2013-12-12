@@ -24,16 +24,20 @@
 
             require('MyFirstCommonJSApp')(
             {
-                    friendlyMines: {
-                        flyMine:    'www.flymine.org/release-38.0/',
-                        metabolicMine:  'www.metabolicmine.org/betas/',
-                        //ratMine:    "http://ratmine.mcw.edu/ratmine",
-                        //yeastMine:    "http://yeastmine.yeastgenome.org/yeastmine",
-                        //modMine:    "intermine.modencode.org/query"
-                        
-                    },
-                    gene: "FBgn0005558",
-                    target: "#pathwaysappcontainer"
+
+                friendlyMines: {
+                    
+                    "ZFINMine":"http://zebrafishmine.org",
+                    "YeastMine":"http://yeastmine.yeastgenome.org/yeastmine",
+                    "MouseMine":"http://www.mousemine.org/mousemine",
+                    "metabolicMine":"http://www.metabolicmine.org/beta",
+                    "RatMine":"http://ratmine.mcw.edu/ratmine",
+                    "modMine":"http://intermine.modencode.org/querys",
+                    "WormMine":"http://www.wormbase.org/tools/wormmine",
+                    "FlyMine":"www.flymine.org/release-38.0"
+                },
+                gene: "FBgn0005558",
+                target: "#pathwaysappcontainer"
             });
 
     </script>
