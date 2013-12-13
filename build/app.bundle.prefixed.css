@@ -7,6 +7,10 @@
   height: 300px;
 }
 
+.-im-pathways-displayer #pathwaysappcontainer h4 {
+  padding-top: 11px;
+}
+
 .-im-pathways-displayer #pathwaysappcontainer .pwayMain {
   /*height: 200px;*/
   position: absolute;

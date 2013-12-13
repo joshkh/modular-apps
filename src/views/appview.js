@@ -5,6 +5,7 @@
   var TableView = require("./tableview");
   var TableViewHeaders = require("./tableviewheaders");
 
+
   var DataPaneView = require("./datapaneview");
   var Globals = require('../modules/globals');
   var $ = require('../modules/dependencies').$;
@@ -103,7 +104,12 @@
     showTable: function() {
 
       console.log("showTable has been called");
-      // Build our table view.
+      if (pwayCollection.length < 1) {
+        var noResultsTemplate = require('../templates/noresults');
+        this.$("#pwayResultsContainer").append(noResultsTemplate);
+        console.log("finished appending NO RESULTS");
+      } else {
+
       var atableView = new TableView({collection: pwayCollection});
       var atableViewHeaders = new TableViewHeaders({collection: pwayCollection});
 
@@ -111,6 +117,10 @@
       this.$("#pwayHeadersContainer").append(atableViewHeaders.render().el);
       this.$("#pwayResultsContainer").append(atableView.render().el);
 
+
+      }
+      // Build our table view.
+      
       this.resizeContext();
 
       console.log("header height: " + $('#pwayResultsId thead').height());

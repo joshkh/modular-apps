@@ -1,16 +1,16 @@
-//module.exports = '<h2>test</h2>';
+//module.exports = '<h4>test</h4>';
 
 module.exports = '<div class="innerDetailsContainer"> \
 	<div class="close clickable">◀ Close</div> \
-	<h2>Pathway Name</h2> \
+	<h4>Pathway Name</h4> \
 	<%= "<a href=http://" + pway.organism[0].genes[0].url + "/report.do?id=" + pway.organism[0].genes[0].pathwayId + ">" %> \
 	<%= pway.name %> \
 	</a> \
-	<h2>Organism</h2> \
+	<h4>Organism</h4> \
 	<%= "<a href=http://" + pway.organism[0].genes[0].url + "/report.do?id=" + pway.organism[0].objectId + ">" %> \
 	<%= pway.organism[0].shortName %> \
 	</a> \
-	<h2>Homologous Genes</h2> \
+	<h4>Homologous Genes</h4> \
 	<ul class="genes"> \
 		<% _.each(pway.organism[0].genes, function(gene) { %> \
 			<% console.log(gene) %> \
@@ -21,7 +21,7 @@ module.exports = '<div class="innerDetailsContainer"> \
 			</li> \
 		<% }) %> \
 	</ul> \
-	<h2>Data Set(s)</h2> \
+	<h4>Data Set(s)</h4> \
 	<ul> \
 		<% _.each(pway.datasets, function(dataset) { %> \
 			<li> \
@@ -30,4 +30,4 @@ module.exports = '<div class="innerDetailsContainer"> \
 				</a> \
 			</li> \
 		<% }); %> \
-	</ul></div>';
+	</ul></div> ';
