@@ -222,6 +222,7 @@
       	if ($(params.target).length != 1) throw "Not found";
       	view.setElement($(params.target));
       	view.render();
+      	view.showLoading();
       
       
       	console.log("Require Debug Test");
@@ -694,6 +695,13 @@
     });
 
     
+    // loading.js
+    root.require.register('MyFirstCommonJSApp/src/templates/loading.js', function(exports, require, module) {
+    
+      module.exports = '<table id="pathways-displayer-loading"><tr><td><div style="float: left;" class="loading-spinner"></div><div style="float: left; padding-left: 5px">Querying mines...</div></td></tr></table>';
+    });
+
+    
     // noresults.js
     root.require.register('MyFirstCommonJSApp/src/templates/noresults.js', function(exports, require, module) {
     
@@ -725,7 +733,7 @@
       			<div id="pwayResultsContainer"> \
       				<div class="dataPane"></div> \
       			</div> \
-      			<div id="statusBar" class="hidden"><div class="loading-spinner">Querying mines...</div> \
+      			<div id="statusBar" class="hidden"> \
       		</div> \
       	</div>';
     });
@@ -807,6 +815,8 @@
       
       
           initialize: function(params) {
+      
+      
             $(window).on("resize",this.resizeContext)
             console.log(JSON.stringify(params));
             var friendlyMines = params.friendlyMines;
@@ -819,7 +829,8 @@
             
       
            this.$el.html(this.templateShell);
-           this.$el.html(shellHTML);
+           console.log("this el: ", this.$el);
+           //this.$el.html(shellHTML);
       
       
             // Listen to our mediator for events
@@ -830,13 +841,19 @@
             mediator.on('notify:minefail', this.notifyFail, this);
             mediator.on('notify:queryprogress', this.notifyQueryStatus, this);
             mediator.on('stats:clearselected', this.clearSelected, this);
-      
+            mediator.on('notify:loading', this.showLoading, this);
       
       
            // Q.when(Helper.launchAll(friendlyMines.flymine))
            //console.log("length: " + this.$el.find('#statusBar').append(value.mine));
       
            
+            //this.$("#pwayResultsContainer").append(loadingTemplate);
+            //this.$("#pwayResultsContainer").append("<h2>LOOK FOR ME, LOADING</h2>");
+            
+            //console.log("Loading template:" + loadingTemplate);
+            //console.log("length: " + this.$("#pwayResultsContainer").length);
+           // mediator.trigger('notify:loading', {});
       
            Q.when(Helper.launchAll(params.gene, friendlyMines))
             .then(function(results) { return console.log(results) })
@@ -844,6 +861,14 @@
       
       
           },
+      
+          showLoading: function() {
+            console.log("this html: " + this.$el.html());
+            console.log("showLoading called");
+            var loadingTemplate = require('../templates/loading');
+           // this.$el.append(loadingTemplate);
+           this.$("#pwayResultsContainer").append(loadingTemplate);
+             },
       
           notifyQueryStatus: function(value) {
       
@@ -868,9 +893,7 @@
       
           },
       
-          test: function() {
-              console.log("test function trigger");
-          },
+      
       
           render: function() {
             var output = _.template(this.templateShell, {myFriendlyMines: this.myFriendlyMines});
@@ -884,7 +907,7 @@
             console.log("showTable has been called");
             if (pwayCollection.length < 1) {
               var noResultsTemplate = require('../templates/noresults');
-              this.$("#pwayResultsContainer").append(noResultsTemplate);
+              this.$("#pwayResultsContainer").html(noResultsTemplate);
               console.log("finished appending NO RESULTS");
             } else {
       
@@ -892,11 +915,14 @@
             var atableViewHeaders = new TableViewHeaders({collection: pwayCollection});
       
            // console.log("atableView", atableView.el.wrap("<p></p>"));
+           this.$("#pathways-displayer-loading").remove();
             this.$("#pwayHeadersContainer").append(atableViewHeaders.render().el);
             this.$("#pwayResultsContainer").append(atableView.render().el);
       
       
             }
+      
+            //this.$("#pwayResultsContainer").append("<P>LOOK FOR ME, LOADING</P>");
             // Build our table view.
             
             this.resizeContext();

@@ -9,6 +9,7 @@ module.exports = function(params) {
 	if ($(params.target).length != 1) throw "Not found";
 	view.setElement($(params.target));
 	view.render();
+	view.showLoading();
 
 
 	console.log("Require Debug Test");

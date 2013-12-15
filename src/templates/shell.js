@@ -5,6 +5,6 @@ module.exports = '\
 			<div id="pwayResultsContainer"> \
 				<div class="dataPane"></div> \
 			</div> \
-			<div id="statusBar" class="hidden"><div class="loading-spinner">Querying mines...</div> \
+			<div id="statusBar" class="hidden"> \
 		</div> \
 	</div>';
