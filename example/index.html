@@ -5,7 +5,7 @@
     <title>Pathways Displayer</title>
 
     
-    <link rel="stylesheet" type="text/css" href="pathway-displayer.css">
+    <link rel="stylesheet" type="text/css" href="pathways-displayer.css">
 
 
 
@@ -13,6 +13,7 @@
 </head>
 
     <h2>Pathways Displayer</h2>
+    <div id="previousDiv" style="background-color: blue;">Test</div>
     <div id="pathwaysappcontainer"></div>
     
    <script src="app.bundle.js"></script>
@@ -22,18 +23,18 @@
     <script>
 
 
-            require('MyFirstCommonJSApp')(
+            require('PathwaysDisplayer')(
             {
 
                 friendlyMines: {
                     
-                    "ZFINMine":"http://zebrafishmine.org",
-                    "YeastMine":"http://yeastmine.yeastgenome.org/yeastmine",
-                    "MouseMine":"http://www.mousemine.org/mousemine",
-                    "metabolicMine":"http://www.metabolicmine.org/beta",
-                    "RatMine":"http://ratmine.mcw.edu/ratmine",
-                    "modMine":"http://intermine.modencode.org/querys",
-                    "WormMine":"http://www.wormbase.org/tools/wormmine",
+                    "ZFINMine":"zebrafishmine.org",
+                    "YeastMine":"yeastmine.yeastgenome.org/yeastmine",
+                    "MouseMine":"www.mousemine.org/mousemine",
+                    "metabolicMine":"www.metabolicmine.org/beta",
+                    "RatMine":"ratmine.mcw.edu/ratmine",
+                    "modMine":"intermine.modencode.org/querys",
+                    "WormMine":"www.wormbase.org/tools/wormmine",
                     "FlyMine":"www.flymine.org/release-38.0"
                 },
                 gene: "FBgn0005558",

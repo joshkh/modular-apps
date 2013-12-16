@@ -9,7 +9,7 @@ module.exports = (grunt) ->
                 dest: 'build/app.js'
                 options:
                     main: 'src/main.js'
-                    name: 'MyFirstCommonJSApp'
+                    name: 'PathwaysDisplayer'
 
         concat:
             scripts:

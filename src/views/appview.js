@@ -32,9 +32,9 @@
 
 
       $(window).on("resize",this.resizeContext)
-      console.log(JSON.stringify(params));
+      //console.log(JSON.stringify(params));
       var friendlyMines = params.friendlyMines;
-      console.log("friendlyMines: " + friendlyMines);
+      //console.log("friendlyMines: " + friendlyMines);
       this.myFriendlyMines = friendlyMines;
 
 
@@ -43,7 +43,7 @@
       
 
      this.$el.html(this.templateShell);
-     console.log("this el: ", this.$el);
+     //console.log("this el: ", this.$el);
      //this.$el.html(shellHTML);
 
 
@@ -59,26 +59,26 @@
 
 
      // Q.when(Helper.launchAll(friendlyMines.flymine))
-     //console.log("length: " + this.$el.find('#statusBar').append(value.mine));
+     ////console.log("length: " + this.$el.find('#statusBar').append(value.mine));
 
      
       //this.$("#pwayResultsContainer").append(loadingTemplate);
       //this.$("#pwayResultsContainer").append("<h2>LOOK FOR ME, LOADING</h2>");
       
-      //console.log("Loading template:" + loadingTemplate);
-      //console.log("length: " + this.$("#pwayResultsContainer").length);
+      ////console.log("Loading template:" + loadingTemplate);
+      ////console.log("length: " + this.$("#pwayResultsContainer").length);
      // mediator.trigger('notify:loading', {});
 
      Q.when(Helper.launchAll(params.gene, friendlyMines))
-      .then(function(results) { return console.log(results) })
+      //.then(function(results) { return console.log(results) })
       .then(function() { mediator.trigger('table:show', {});});
 
 
     },
 
     showLoading: function() {
-      console.log("this html: " + this.$el.html());
-      console.log("showLoading called");
+      //console.log("this html: " + this.$el.html());
+      //console.log("showLoading called");
       var loadingTemplate = require('../templates/loading');
      // this.$el.append(loadingTemplate);
      this.$("#pwayResultsContainer").append(loadingTemplate);
@@ -103,7 +103,7 @@
        //$(".dataPane").css("height", $("#pwayResultsContainer").height() + $("#pwayHeadersContainer").height() + $("#statusBar").height() );
        $(".dataPane").css("height", $("#pwayResultsContainer").height());
 
-       console.log("HEIGHT CHECK OF pwayResultsContainer CONTAINER: " + $("#pwayResultsContainer").height() );
+       ////console.log("HEIGHT CHECK OF pwayResultsContainer CONTAINER: " + $("#pwayResultsContainer").height() );
 
     },
 
@@ -118,18 +118,29 @@
     // Show our data table:
     showTable: function() {
 
-      console.log("showTable has been called");
+      //console.log("showTable has been called");
       if (pwayCollection.length < 1) {
         var noResultsTemplate = require('../templates/noresults');
         this.$("#pwayResultsContainer").html(noResultsTemplate);
-        console.log("finished appending NO RESULTS");
+        //console.log("finished appending NO RESULTS");
       } else {
 
       var atableView = new TableView({collection: pwayCollection});
       var atableViewHeaders = new TableViewHeaders({collection: pwayCollection});
 
-     // console.log("atableView", atableView.el.wrap("<p></p>"));
+     // //console.log("atableView", atableView.el.wrap("<p></p>"));
      this.$("#pathways-displayer-loading").remove();
+
+     // Get the color of our previous parent container
+     var parentColor = this.$el.prev('div').css('background-color');
+     
+     var pColor = this.$('.pwayHeaders thead tr th').css("background-color");
+
+     this.$("#pwayHeadersContainer").css("background-color", pColor);
+
+     console.log("PCOLOR: " + pColor);
+
+
       this.$("#pwayHeadersContainer").append(atableViewHeaders.render().el);
       this.$("#pwayResultsContainer").append(atableView.render().el);
 
@@ -141,7 +152,7 @@
       
       this.resizeContext();
 
-      console.log("header height: " + $('#pwayResultsId thead').height());
+      //console.log("header height: " + $('#pwayResultsId thead').height());
 
       $(document).keyup(function(e) {
         if (e.keyCode == 27) {
@@ -194,7 +205,7 @@
       this.$el.find(".dataPane").addClass("active");
 
       var testModel = new Backbone.Model(object);
-      console.log("testModel: " + JSON.stringify(testModel, null, 2));
+      //console.log("testModel: " + JSON.stringify(testModel, null, 2));
 
       var dataView = new DataPaneView({model: testModel});
       //this.$el.find(".dataPane").html(detailsHtml);
@@ -211,7 +222,7 @@
     },
 
     hideStats: function() {
-      console.log("hiding stats");
+      //console.log("hiding stats");
       this.$(".dataPane").removeClass("active");
       $("tr.highlighted").removeClass("highlighted");
       
@@ -219,13 +230,13 @@
     },
 
     notifyFail: function(value) {
-      console.log("notifay failure with value: " + JSON.stringify(value, null, 2));
+      //console.log("notifay failure with value: " + JSON.stringify(value, null, 2));
      failures.push(value.mine);
     },
 
     clearSelected: function() {
       //$("tr.highlighted").removeClass("highlighted");
-      console.log("clearSelected called");
+      //console.log("clearSelected called");
       this.$("tr.highlighted").removeClass("highlighted");
     }
 

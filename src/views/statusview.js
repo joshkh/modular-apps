@@ -23,7 +23,7 @@ var mediator = require('../modules/mediator');
 
        var compiledTemplate = _.template(mineStatusTemplate, {name: this.options.name});
        this.$el.append(compiledTemplate);
-       console.log("compiledTemplate " + compiledTemplate);
+       //console.log("compiledTemplate " + compiledTemplate);
         return this.$el;
       }
 

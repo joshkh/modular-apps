@@ -16,12 +16,12 @@ var TableView = Backbone.View.extend({
    
 
 
-    console.log('table view initialized');     
+    //console.log('table view initialized');     
   },
   render: function() {
 
     var compiledTemplate = _.template(templateTableHeaders, {columns: Globals.columns});
-    console.log("compiledTemplate: " + compiledTemplate);
+    //console.log("compiledTemplate: " + compiledTemplate);
     this.$el.append(compiledTemplate);
 
     //this.collection.each(this.renderOne);

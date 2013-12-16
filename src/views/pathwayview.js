@@ -19,7 +19,7 @@ var PathwayView = Backbone.View.extend({
 
     open: function() {
 
-      console.log("Row Click Detected");    
+      //console.log("Row Click Detected");    
       
     },
 

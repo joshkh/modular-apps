@@ -12,7 +12,7 @@ module.exports = function(params) {
 	view.showLoading();
 
 
-	console.log("Require Debug Test");
+
 
 	//console.log(view.re);
 
