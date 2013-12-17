@@ -11,6 +11,14 @@ module.exports = function(params) {
 	view.render();
 	view.showLoading();
 
+/*
+	setTimeout(function() {
+		view.updateTableColors();
+
+	}, 5000);*/
+	
+
+
 
 
 

@@ -21265,6 +21265,14 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       	view.render();
       	view.showLoading();
       
+      /*
+      	setTimeout(function() {
+      		view.updateTableColors();
+      
+      	}, 5000);*/
+      	
+      
+      
       
       
       
@@ -21701,7 +21709,6 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       	<h4>Homologous Genes</h4> \
       	<ul class="genes"> \
       		<% _.each(pway.organism[0].genes, function(gene) { %> \
-      			<% console.log(gene) %> \
       			<li> \
       			<%= "<a href=" + gene.url + "/report.do?id=" + gene.objectId + ">" %> \
       				<%= gene.symbol %> \
@@ -21857,11 +21864,12 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       
           initialize: function(params) {
       
+            //console.log("params stringified: " + JSON.stringify(params, null, 2));
       
             $(window).on("resize",this.resizeContext)
-            //console.log(JSON.stringify(params));
+      
             var friendlyMines = params.friendlyMines;
-            //console.log("friendlyMines: " + friendlyMines);
+      
             this.myFriendlyMines = friendlyMines;
       
       
@@ -21870,46 +21878,37 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
             
       
            this.$el.html(this.templateShell);
-           //console.log("this el: ", this.$el);
-           //this.$el.html(shellHTML);
-      
       
             // Listen to our mediator for events
             mediator.on('column:add', this.addColumn, this);
             mediator.on('stats:show', this.showStats, this);
             mediator.on('table:show', this.showTable, this);
             mediator.on('stats:hide', this.hideStats, this);
+            mediator.on('table:color', this.updateTableColors, this);
             mediator.on('notify:minefail', this.notifyFail, this);
             mediator.on('notify:queryprogress', this.notifyQueryStatus, this);
             mediator.on('stats:clearselected', this.clearSelected, this);
             mediator.on('notify:loading', this.showLoading, this);
       
+            //var color = params.themeColor;
+            //console.log("parameter color: " + color);
       
-           // Q.when(Helper.launchAll(friendlyMines.flymine))
-           ////console.log("length: " + this.$el.find('#statusBar').append(value.mine));
       
-           
-            //this.$("#pwayResultsContainer").append(loadingTemplate);
-            //this.$("#pwayResultsContainer").append("<h2>LOOK FOR ME, LOADING</h2>");
-            
-            ////console.log("Loading template:" + loadingTemplate);
-            ////console.log("length: " + this.$("#pwayResultsContainer").length);
-           // mediator.trigger('notify:loading', {});
       
            Q.when(Helper.launchAll(params.gene, friendlyMines))
             //.then(function(results) { return console.log(results) })
-            .then(function() { mediator.trigger('table:show', {});});
+            .then(function() { mediator.trigger('table:show', {backgroundColor: params.themeColor});})
+            .then(function() { mediator.trigger('table:color', {})});
       
       
           },
       
           showLoading: function() {
-            //console.log("this html: " + this.$el.html());
-            //console.log("showLoading called");
+      
             var loadingTemplate = require('../templates/loading');
-           // this.$el.append(loadingTemplate);
-           this.$("#pwayResultsContainer").append(loadingTemplate);
-             },
+      
+            this.$("#pwayResultsContainer").append(loadingTemplate);
+          },
       
           notifyQueryStatus: function(value) {
       
@@ -21939,12 +21938,13 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
           render: function() {
             var output = _.template(this.templateShell, {myFriendlyMines: this.myFriendlyMines});
             this.$el.html(output);
+            this.updateTableColors();
             return this;
           },
       
           // Show our data table:
-          showTable: function() {
-      
+          showTable: function(args) {
+            //console.log("showTable called with color: " + args.backgroundColor);
             //console.log("showTable has been called");
             if (pwayCollection.length < 1) {
               var noResultsTemplate = require('../templates/noresults');
@@ -21961,15 +21961,13 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
            // Get the color of our previous parent container
            var parentColor = this.$el.prev('div').css('background-color');
            
-           var pColor = this.$('.pwayHeaders thead tr th').css("background-color");
-      
-           this.$("#pwayHeadersContainer").css("background-color", pColor);
-      
-           console.log("PCOLOR: " + pColor);
+           
       
       
             this.$("#pwayHeadersContainer").append(atableViewHeaders.render().el);
             this.$("#pwayResultsContainer").append(atableView.render().el);
+      
+            $( ".circle" ).css( "background-color", args.backgroundColor );
       
       
             }
@@ -22007,6 +22005,16 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
             
            
       
+      
+          },
+      
+          updateTableColors:function() {
+            //console.log("coloring headers2");
+            var pColor = this.$('.pwayHeaders thead tr th').css("background-color");
+            this.$("#pwayHeadersContainer").css("background-color", pColor);
+            //console.log("PCOLOR: " + pColor);
+           
+            
       
           },
       

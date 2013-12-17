@@ -13,7 +13,6 @@ module.exports = '<div class="innerDetailsContainer"> \
 	<h4>Homologous Genes</h4> \
 	<ul class="genes"> \
 		<% _.each(pway.organism[0].genes, function(gene) { %> \
-			<% console.log(gene) %> \
 			<li> \
 			<%= "<a href=" + gene.url + "/report.do?id=" + gene.objectId + ">" %> \
 				<%= gene.symbol %> \
