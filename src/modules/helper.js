@@ -39,14 +39,14 @@ var mediator = require('./mediator');
         return getPathwaysByGene(location, returned, "collection");
       },
       function(e) {
-        ////console.log(e, e.stack);
+
         mediator.trigger('notify:minefail', {mine: mine, err: e});
         throw e;
       }
     ).fail(error);
 
     function error (err) {
-      ////console.log("error has been thrown", err.stack);
+
     }
 
 /*
@@ -130,9 +130,12 @@ var getHomologues = function(pIdentifier, url) {
     var query, getService, getData, error, fin;
 
     // Build our query:
-    var query = {"select":["Homologue.homologue.primaryIdentifier", "Homologue.homologue.symbol"],"orderBy":[{"Homologue.homologue.primaryIdentifier":"ASC"}],"where":[{"path":"Homologue.gene","op":"LOOKUP","value":pIdentifier}]};
-
+    //var query = {"select":["Homologue.homologue.primaryIdentifier", "Homologue.homologue.symbol"],"orderBy":[{"Homologue.homologue.primaryIdentifier":"ASC"}],"where":[{"path":"Homologue.gene","op":"LOOKUP","value":pIdentifier}]};
+    // var query = {"select":["Homologue.homologue.primaryIdentifier", "Homologue.homologue.symbol"],"orderBy":[{"Homologue.homologue.primaryIdentifier":"ASC"}],"where":[{"path":"Homologue.gene","op":"LOOKUP","value":pIdentifier}]};
+    //var query = {"select":["Gene.homologues.homologue.primaryIdentifier","Gene.homologues.homologue.symbol"],"constraintLogic":"A and B","orderBy":[{"Gene.homologues.homologue.primaryIdentifier":"ASC"}],"where":[{"path":"Gene","op":"LOOKUP","code":"A","value":"eyeless"},{"path":"Gene.homologues.type","op":"=","code":"B","value":"orthologue"}]};
     // Get our service.
+    // var query = {"select":["Gene.homologues.homologue.primaryIdentifier"],"constraintLogic":"A and B","orderBy":[{"Gene.homologues.homologue.primaryIdentifier":"ASC"}],"where":[{"path":"Gene","op":"LOOKUP","code":"A","value":"FBgn0005558","extraValue":""},{"path":"Gene.homologues.type","op":"=","code":"B","value":"orthologue"}]};
+    var query = {"select":["Gene.homologues.homologue.primaryIdentifier","Gene.homologues.homologue.symbol"],"constraintLogic":"A and B and C","orderBy":[{"Gene.homologues.homologue.primaryIdentifier":"ASC"}],"where":[{"path":"Gene","op":"LOOKUP","code":"A","value":pIdentifier,"extraValue":""},{"path":"Gene.homologues.type","op":"!=","code":"B","value":"paralogue"},{"path":"Gene.homologues.type","op":"!=","code":"C","value":"paralog"}]};
     getService = function (aUrl) {
 
       //console.log("building service");
@@ -143,9 +146,13 @@ var getHomologues = function(pIdentifier, url) {
 
     // Run our query.
     getData = function (aService) {
-        //console.log("getHomologues detData called with query: ", JSON.stringify(query, null, 2));
+
+      var myModel = aService.fetchModel().then(function(model) {
+        console.log("MY MODEL: ", model);
+      });
+      
         var aValue = aService.records(query);
-        //console.log(aValue);
+
         return aValue;
     };
 
@@ -155,10 +162,19 @@ var getHomologues = function(pIdentifier, url) {
       
       return function (orgs) {
 
+        if (orgs.length < 1) {
+          // no results, return
+          return [];
+        }
+
         // Return the homologue attribute of our results.
-        var values = orgs.map(function(o) {
+      //var values = orgs.map(function(o) {
+        var values = orgs[0].homologues.map(function(o) {
           return o.homologue
+          //return o.homologues.homologue
         });
+
+    
 
 
         // Create a 'fake' gene that represents the primary identifier and add it to our results
@@ -168,10 +184,10 @@ var getHomologues = function(pIdentifier, url) {
 
 
         luString = values.map(function(gene) {return gene.primaryIdentifier}).join(',');
-        _.each(values, function(gene) {
-           //console.log(gene.primaryIdentifier);
-        });
-        //console.log("luString" + luString);
+        /*_.each(values, function(gene) {
+           console.log("primary identifier: " + gene.primaryIdentifier);
+        });*/
+
 
         return values;
       }
