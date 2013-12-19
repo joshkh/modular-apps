@@ -1,25 +1,19 @@
-Pathways Displayer
-====
+# Pathways Displayer
 
 A cross-mine pathways displayer.
 
-DESCRIPTION
-===========
+### DESCRIPTION
 
 The Pathways Displayer shows genetic pathways that are linked between organisms using homology. Using the list of mines configured in the global.web.properties, each mine is queried for orthologues for a given identifier. 
 
-INSTALLATION
-===========
+### INSTALLATION
 
 The web application is presented in two forms: 
 
 1) An embeddable version for the InterMine reports page displayer.
 2) A self contained javascript bundle that includes all dependencies.
 
-
-
-Reports Displayer 
---------------
+#### Reports Displayer 
 
 The Pathways Displayer is embedded into the InterMine Reports Displayer by default, and requires the following configurations:
 
